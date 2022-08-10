@@ -44,7 +44,7 @@ function showConfiguration(e) {
     }
     var configurationForm = document.createElement('form');
     let configuration = {};
-    
+
     chrome.storage.sync.get('configuration',
         function (result) {
             console.log(result);
@@ -147,7 +147,11 @@ function showConfiguration(e) {
 
         var dependentItems = document.getElementsByClassName('dependsOnPosition');
         for (var i = 0; i < dependentItems.length; i++) {
-            dependentItems[i].style.display = orderOfDisplay == 'numberBeforeType' ? 'none' : 'block';;
+            dependentItems[i].style.display = orderOfDisplay == 'numberBeforeType'
+                ? 'none'
+                : itemNumber == 'none'
+                    ? 'none'
+                    : 'block';
         }
 
         var dependsIfNumber = document.getElementsByClassName('beforeNumber');
