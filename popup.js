@@ -130,7 +130,7 @@ function showConfiguration(e) {
 
         var dependsIfNumber = document.getElementsByClassName('beforeNumber');
         for (var i = 0; i < dependsIfNumber.length; i++) {
-            dependsIfNumber[i].hidden = orderOfDisplay != 'numberBeforeType';
+            dependsIfNumber[i].hidden = itemNumber == 'none' || orderOfDisplay != 'numberBeforeType';
         }
 
         let separatorAfterNumber = configuration['separatorAfterNumber']
@@ -265,6 +265,12 @@ function showConfiguration(e) {
         hiddenH3.className = 'beforeNumber';
         hiddenH3.innerText = 'The number must not be first';
         radioGroup.appendChild(hiddenH3);
+
+        var hiddenH3NotNumber = document.createElement('div');
+        hiddenH3NotNumber.hidden = 'none';
+        hiddenH3NotNumber.className = 'dependsIfNumber';
+        hiddenH3NotNumber.innerText = 'Item number must not be \'None\'';
+        radioGroup.appendChild(hiddenH3NotNumber);
 
         let selectedValue = '/'
         insertRadioButton(radioGroup, 'separatorBeforeNumber', '/', 'Forward Slash (/)', selectedValue, true, true);
