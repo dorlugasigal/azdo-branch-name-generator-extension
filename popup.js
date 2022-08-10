@@ -217,7 +217,7 @@ function showConfiguration(e) {
 
         let selectedValue = 'feature'
         insertRadioButton(radioGroup, 'taskFeature', 'feature', 'Feature', selectedValue);
-        insertRadioButton(radioGroup, 'taskFeature', 'userStory', 'User Story', selectedValue);
+        insertRadioButton(radioGroup, 'taskFeature', 'userStory', 'UserStory', selectedValue);
         insertRadioButton(radioGroup, 'taskFeature', 'task', 'Task', selectedValue);
     }
 
