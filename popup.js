@@ -56,48 +56,83 @@ function showConfiguration(e) {
     function initConfigurationSection(configurationForm) {
         var configurationDiv = document.createElement('div');
         document.body.appendChild(configurationDiv);
-        configurationDiv.style.borderTop = '2px solid #000';
+
+        configurationDiv.style.borderTop = '3px solid #000';
+        configurationDiv.style.marginTop = '10px';
 
         configurationDiv.id = 'configuration';
 
-        var configurationHeader = document.createElement('h1');
-        configurationHeader.innerText = 'Configuration';
-        configurationHeader.style.textAlign = 'center';
-        configurationDiv.appendChild(configurationHeader);
+        // var configurationHeader = document.createElement('h1');
+        // configurationHeader.innerText = 'Configuration';
+        // configurationHeader.style.textAlign = 'center';
+        // configurationDiv.appendChild(configurationHeader);
 
-        configurationForm.id = 'configurationForm';
-        configurationDiv.appendChild(configurationForm);
-        configurationForm.style.display = 'flex';
-        configurationForm.style.flexDirection = 'column';
-        configurationForm.style.justifyContent = 'center';
-        configurationForm.style.flexWrap = 'wrap';
 
-        var configurationLabel = document.createElement('h2');
-        configurationLabel.innerText = 'Naming Convention';
-        configurationForm.appendChild(configurationLabel);
-        configurationForm.onclick = onFormChange;
-        configurationForm.onkeyup = onFormChange;
 
-        let feature = configuration['taskFeature'];
-        let bugfix = configuration['bugfix'];
-        let separator = configuration['wordSeparator'];
-        let itemNumber = configuration['itemNumber'];
-        let orderOfDisplay = configuration['orderOfDisplay'];
-        let separatorAfterNumber = configuration['separatorAfterNumber'];
-        let separatorBeforeNumber = configuration['separatorBeforeNumber'];
+        setupForm();
 
-        createTaskFeatureUserStoryRadioGroup(feature);
-        createBugFixRadioGroup(bugfix);
-        createWordSeparatorRadioGroup(separator);
-        createItemNumberRadioGroup(itemNumber);
-        createOrderOfDislayRadioGroup(orderOfDisplay);
-        createSeparatorAfterNumberRadioGroup(separatorAfterNumber);
-        createSeparatorBeforeNumberRadioGroup(separatorBeforeNumber);
+        function setupForm() {
+            configurationForm.style.flexWrap = 'wrap';
+            configurationForm.style.display = 'flex';
+            configurationForm.style.flexDirection = 'column';
+            configurationForm.style.justifyContent = 'center';
+            configurationForm.id = 'configurationForm';
 
-        createPreviewTitleH1();
-        createPreviewH2('bugfixBranchNamePreview');
-        createPreviewH2('featureBranchNamePreview');
-        onFormChange(configuration);
+            configurationDiv.appendChild(configurationForm);
+
+            var usernameDiv = document.createElement('div');
+            usernameDiv.style.display = 'flex';
+            usernameDiv.style.padding = '5px';
+            usernameDiv.style.marginTop = '10px';
+            configurationForm.appendChild(usernameDiv);
+
+            var usernameLabel = document.createElement('label');
+            usernameLabel.innerText = 'Preffered username';
+            usernameLabel.style.fontWeight = 'bold';
+            usernameLabel.style.flex = '1';
+            usernameLabel.for = 'username';
+            usernameDiv.appendChild(usernameLabel);
+
+            let userName = (configuration.username) ? `${configuration.username}` : '';
+            var usernameInput = document.createElement('input');
+            usernameInput.type = 'text';
+            usernameInput.id = 'username';
+            usernameInput.name = 'username';
+            usernameInput.style.flex = '1';
+            usernameInput.style.marginRight = '10px';
+            usernameInput.value = userName;
+            usernameInput.onchange = onFormChange;
+            usernameDiv.appendChild(usernameInput);
+
+            createUsernameRadioGroup(userName);
+
+            var configurationLabel = document.createElement('h2');
+            configurationLabel.innerText = 'Naming Convention';
+            configurationForm.appendChild(configurationLabel);
+            configurationForm.onclick = onFormChange;
+            configurationForm.onkeyup = onFormChange;
+
+            let feature = configuration['taskFeature'];
+            let bugfix = configuration['bugfix'];
+            let separator = configuration['wordSeparator'];
+            let itemNumber = configuration['itemNumber'];
+            let orderOfDisplay = configuration['orderOfDisplay'];
+            let separatorAfterNumber = configuration['separatorAfterNumber'];
+            let separatorBeforeNumber = configuration['separatorBeforeNumber'];
+
+            createTaskFeatureUserStoryRadioGroup(feature);
+            createBugFixRadioGroup(bugfix);
+            createWordSeparatorRadioGroup(separator);
+            createItemNumberRadioGroup(itemNumber);
+            createOrderOfDislayRadioGroup(orderOfDisplay);
+            createSeparatorAfterNumberRadioGroup(separatorAfterNumber);
+            createSeparatorBeforeNumberRadioGroup(separatorBeforeNumber);
+
+            createPreviewTitleH1();
+            createPreviewH2('bugfixBranchNamePreview');
+            createPreviewH2('featureBranchNamePreview');
+            onFormChange(configuration);
+        }
     }
 
     function createPreviewH2(id) {
@@ -122,6 +157,7 @@ function showConfiguration(e) {
             for (var entry of formData.entries()) {
                 configuration[entry[0]] = entry[1];
             }
+            console.log(configuration);
             chrome.storage.sync.set({ configuration: configuration });
         }
         else {
@@ -233,6 +269,16 @@ function showConfiguration(e) {
         insertRadioButton(radioGroup, 'itemNumber', 'taskNumber', 'Task Number', defaultValue);
     }
 
+
+    function createUsernameRadioGroup(defaultValue = '') {
+        var radioGroup = createRadioButtonWrapper('Username Prefix');
+
+        insertRadioButton(radioGroup, 'username', 'none', 'None', defaultValue);
+        insertRadioButton(radioGroup, 'username', defaultValue, defaultValue, defaultValue);
+        insertRadioButton(radioGroup, 'username', 'WHAT', 'WHAT', defaultValue);
+    }
+
+
     function createTaskFeatureUserStoryRadioGroup(defaultValue = 'feature') {
         var radioGroup = createRadioButtonWrapper('Task\Feature');
 
@@ -256,20 +302,21 @@ function showConfiguration(e) {
         var hiddenH3 = document.createElement('div');
         hiddenH3.hidden = 'none';
         hiddenH3.className = 'dependsIfNumber';
-        hiddenH3.innerText = 'an item number must be selected';
+        hiddenH3.innerText = 'an \'item number\' must be selected';
         radioGroup.appendChild(hiddenH3);
 
         insertRadioButton(radioGroup, 'orderOfDisplay', 'numberBeforeType', 'Number Before Item Type', defaultValue, true);
         insertRadioButton(radioGroup, 'orderOfDisplay', 'typeBeforeNumber', 'Item Type Before Number', defaultValue, true);
     }
 
+
     function createSeparatorAfterNumberRadioGroup(defaultValue = '/') {
-        var radioGroup = createRadioButtonWrapper('Separator After Number');
+        var radioGroup = createRadioButtonWrapper('After Number');
 
         var hiddenH3 = document.createElement('div');
         hiddenH3.hidden = 'none';
         hiddenH3.className = 'dependsIfNumber';
-        hiddenH3.innerText = 'an item number must be selected';
+        hiddenH3.innerText = 'an \'item number\' must be selected';
         radioGroup.appendChild(hiddenH3);
 
         insertRadioButton(radioGroup, 'separatorAfterNumber', '/', 'Forward Slash (/)', defaultValue, true);
@@ -277,8 +324,11 @@ function showConfiguration(e) {
         insertRadioButton(radioGroup, 'separatorAfterNumber', '_', 'Underscore (_)', defaultValue, true);
     }
 
+
+
+
     function createSeparatorBeforeNumberRadioGroup(defaultValue = '/') {
-        var radioGroup = createRadioButtonWrapper('Separator Before Number');
+        var radioGroup = createRadioButtonWrapper('Before Number');
 
         var hiddenH3 = document.createElement('div');
         hiddenH3.hidden = 'none';
@@ -289,7 +339,7 @@ function showConfiguration(e) {
         var hiddenH3NotNumber = document.createElement('div');
         hiddenH3NotNumber.hidden = 'none';
         hiddenH3NotNumber.className = 'dependsIfNumber';
-        hiddenH3NotNumber.innerText = 'an item number must be selected';
+        hiddenH3NotNumber.innerText = 'an \'item number\' must be selected';
         radioGroup.appendChild(hiddenH3NotNumber);
 
         insertRadioButton(radioGroup, 'separatorBeforeNumber', '/', 'Forward Slash (/)', defaultValue, true, true);
