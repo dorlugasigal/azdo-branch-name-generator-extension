@@ -44,6 +44,12 @@ chrome.runtime.sendMessage({ type: 'from_popup' }, (response) => {
 
 
 function showConfiguration(e) {
+    //if already created, close it
+    if (document.getElementById('configuration')) {
+        document.getElementById('configuration').remove();
+        return;
+    }
+
     var configurationDiv = document.createElement('div');
     document.body.appendChild(configurationDiv);
     configurationDiv.style.borderTop = '2px solid #000';
@@ -105,37 +111,37 @@ function showConfiguration(e) {
         for (var entry of formData.entries()) {
             configuration[entry[0]] = entry[1];
         }
+        console.log(configuration);
         chrome.storage.sync.set({ configuration: configuration }, function () {
             console.log('Settings saved');
         });
-
 
         let separator = configuration['wordSeparator']
         let feature = configuration['taskFeature']
         let bugfix = configuration['bugfix']
         let itemNumber = configuration['itemNumber']
+
+        var dependentItems = document.getElementsByClassName('dependent');
+        console.log('dependentItems.length', dependentItems.length)
+        for (var i = 0; i < dependentItems.length; i++) {
+            dependentItems[i].style.display = itemNumber == 'none' ? 'none' : 'block';
+        }
+
+        var dependentDiv = document.getElementsByClassName('dependentDiv');
+        for (var i = 0; i < dependentDiv.length; i++) {
+            dependentDiv[i].hidden = itemNumber != 'none';
+        }
+
+
         let orderOfDisplay = configuration['orderOfDisplay']
         let numberSeparator = configuration['numberSeparator']
         var featureBranchExample = ''
         var bugfixBranchExample = ''
         if (itemNumber == 'none') {
-
-
-            var dependentItems = document.getElementsByClassName('dependent');
-            console.log(dependentItems.length)
-            for (var i = 0; i < dependentItems.length; i++) {
-                dependentItems[i].disabled = true;
-            }
-
             featureBranchExample = `${feature}/this is a feature branch`.replace(/ /g, separator);
             bugfixBranchExample = `${bugfix}/this is a bugfix branch`.replace(/ /g, separator);
         }
         else {
-
-            var dependentItems = document.getElementsByClassName('dependent');
-            for (var i = 0; i < dependentItems.length; i++) {
-                dependentItems[i].disabled = false;
-            }
 
             featureBranchExample = `${feature}/this is a feature branch`.replace(/ /g, separator);
             bugfixBranchExample = `${bugfix}/this is a bugfix branch`.replace(/ /g, separator);
@@ -224,6 +230,12 @@ function showConfiguration(e) {
     function createOrderOfDislayRadioGroup() {
         var radioGroup = createRadioButtonWrapper('Order of Display');
 
+        var hiddenH3 = document.createElement('div');
+        hiddenH3.hidden = 'none';
+        hiddenH3.className = 'dependentDiv';
+        hiddenH3.innerText = 'Item number must not be \'None\'';
+        radioGroup.appendChild(hiddenH3);
+
         let selectedValue = 'numberBeforeType'
         insertRadioButton(radioGroup, 'orderOfDisplay', 'numberBeforeType', 'Number Before Item Type', selectedValue, true);
         insertRadioButton(radioGroup, 'orderOfDisplay', 'typeBeforeNumber', 'Item Type Before Number', selectedValue, true);
@@ -231,6 +243,12 @@ function showConfiguration(e) {
 
     function createNumberSeparatorRadioGroup() {
         var radioGroup = createRadioButtonWrapper('Separator on number');
+
+        var hiddenH3 = document.createElement('div');
+        hiddenH3.hidden = 'none';
+        hiddenH3.className = 'dependentDiv';
+        hiddenH3.innerText = 'Item number must not be \'None\'';
+        radioGroup.appendChild(hiddenH3);
 
         let selectedValue = '/'
         insertRadioButton(radioGroup, 'numberSeparator', '/', 'Forward Slash (/)', selectedValue, true);
@@ -252,15 +270,16 @@ function showConfiguration(e) {
         radioInput.value = value;
         radioInput.id = `radioInput${value}${labelText}${groupName}`;
         radioInput.checked = value == selectedValue;
-        if (dependsOnNumber) {
-            radioInput.className = 'dependent';
-        }
         radioDiv.appendChild(radioInput);
 
         var configurationRadioTaskLabel = document.createElement('label');
         configurationRadioTaskLabel.innerText = labelText;
         configurationRadioTaskLabel.htmlFor = `radioInput${value}${labelText}${groupName}`;
         radioDiv.appendChild(configurationRadioTaskLabel);
+
+        if (dependsOnNumber) {
+            radioDiv.className = 'dependent';
+        }
     }
 }
 
