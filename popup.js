@@ -1,10 +1,13 @@
 chrome.runtime.sendMessage({ type: 'from_popup' }, (response) => {
     console.log(JSON.stringify(response))
+    console.log(response.task === undefined)
+    debugger;
+    console.log(response.workItem === undefined)
+    var target = response.task === undefined ? response.workItem : response.task;
     var parser = new DOMParser();
-    var doc = parser.parseFromString(response.task, "text/html");
+    var doc = parser.parseFromString(target, "text/html");
 
     if (doc.getElementsByClassName('title ellipsis').length == 0) {
-
         var noItemSelected = document.getElementById('branch');
         noItemSelected.innerHTML = "No item selected";
         return;
@@ -19,7 +22,7 @@ chrome.runtime.sendMessage({ type: 'from_popup' }, (response) => {
     var branchName = branchName.replace(/[^a-zA-Z0-9-]/g, '-');
 
     // get the aria-label of the inner work-item-type-icon bowtie-icon bowtie-symbol-task class
-    var workItemType = doc.getElementsByClassName('work-item-type-icon bowtie-icon bowtie-symbol-task')[0].getAttribute('aria-label');
+    var workItemType = doc.getElementsByClassName('work-item-type-icon bowtie-icon')[0].getAttribute('aria-label');
 
     // if the workItemType is task then rename to feature
     if (workItemType.toLowerCase() == 'task') {
@@ -75,7 +78,7 @@ function showConfiguration(e) {
     configurationForm.onclick = onFormChange;
     configurationForm.onkeyup = onFormChange;
 
-    createTaskFeatureRadioGroup();
+    createTaskFeatureUserStoryRadioGroup();
     createBugFixRadioGroup();
     createWordSeparatorRadioGroup();
     createItemNumberRadioGroup();
@@ -209,11 +212,12 @@ function showConfiguration(e) {
         insertRadioButton(radioGroup, 'itemNumber', 'taskNumber', 'Task Number', selectedValue);
     }
 
-    function createTaskFeatureRadioGroup() {
+    function createTaskFeatureUserStoryRadioGroup() {
         var radioGroup = createRadioButtonWrapper('Task\Feature');
 
         let selectedValue = 'feature'
         insertRadioButton(radioGroup, 'taskFeature', 'feature', 'Feature', selectedValue);
+        insertRadioButton(radioGroup, 'taskFeature', 'userStory', 'User Story', selectedValue);
         insertRadioButton(radioGroup, 'taskFeature', 'task', 'Task', selectedValue);
     }
 

@@ -5,18 +5,26 @@ if (document.readyState !== 'complete') {
 }
 
 function afterWindowLoaded() {
-    var tbTileContent = document.getElementsByClassName('tbTile ui-draggable ui-draggable-handle childTbTile');
+    var tbTileContent = document.getElementsByClassName('tbTile ui-draggable ui-draggable-handle');
 
     for (var i = 0; i < tbTileContent.length; i++) {
-        tbTileContent[i].onfocus = sendDetails;
-        
+        //tbTileContent[i].onfocus = sendDetails;
+        tbTileContent[i].onclick = sendDetails;
+
         function sendDetails() {
             var parent = this.parentElement.parentElement;
-            var workitem = parent.getElementsByClassName('taskboard-cell taskboard-parent highlight-on-row-change')[0];
+            let parentItem = {}
+            if (this.classList.contains('parentTbTile')) {
+                workitem = undefined;
+                parentItem = this;
+            }
+            else {
+                parentItem = parent.getElementsByClassName('taskboard-cell taskboard-parent highlight-on-row-change')[0];
+            }
 
             chrome.runtime.sendMessage({
                 type: 'from_content_script', content: {
-                    'workitem': workitem.outerHTML,
+                    'workItem': parentItem.outerHTML,
                     'task': this.outerHTML
                 }
             });
