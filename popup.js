@@ -1,8 +1,4 @@
 chrome.runtime.sendMessage({ type: 'from_popup' }, (response) => {
-    console.log(JSON.stringify(response))
-    console.log(response.task === undefined)
-    debugger;
-    console.log(response.workItem === undefined)
     var target = response.task === undefined ? response.workItem : response.task;
     var parser = new DOMParser();
     var doc = parser.parseFromString(target, "text/html");
@@ -15,27 +11,22 @@ chrome.runtime.sendMessage({ type: 'from_popup' }, (response) => {
 
     var title = doc.getElementsByClassName('title ellipsis')[0].innerText;
 
-    // convert to lowercase with hypens separating words and safe for branch name
     var branchName = title.toLowerCase().replace(/ /g, '-');
 
-    // convert special characters to hypens
     var branchName = branchName.replace(/[^a-zA-Z0-9-]/g, '-');
 
-    // get the aria-label of the inner work-item-type-icon bowtie-icon bowtie-symbol-task class
     var workItemType = doc.getElementsByClassName('work-item-type-icon bowtie-icon')[0].getAttribute('aria-label');
 
-    // if the workItemType is task then rename to feature
     if (workItemType.toLowerCase() == 'task') {
         workItemType = 'feature';
     }
 
-    // create a branch name of lowercase workItemType-branchName
     var branchName = workItemType.toLowerCase() + '/' + branchName;
+    branchName = branchName.replace(/ /g, '');
 
     var h2 = document.getElementById('branch');
     h2.innerText = branchName;
 
-    //create a button next to it to copy
     var copyButton = document.createElement('button');
     copyButton.type = 'button';
     copyButton.innerText = 'Copy';
@@ -47,7 +38,6 @@ chrome.runtime.sendMessage({ type: 'from_popup' }, (response) => {
 
 
 function showConfiguration(e) {
-    //if already created, close it
     if (document.getElementById('configuration')) {
         document.getElementById('configuration').remove();
         return;
@@ -83,8 +73,8 @@ function showConfiguration(e) {
     createWordSeparatorRadioGroup();
     createItemNumberRadioGroup();
     createOrderOfDislayRadioGroup();
-    createNumberSeparatorRadioGroup();
-
+    createSeparatorAfterNumberRadioGroup();
+    createSeparatorBeforeNumberRadioGroup();
 
     createPreviewTitleH1();
     createPreviewH2('bugfixBranchNamePreview')
@@ -114,30 +104,37 @@ function showConfiguration(e) {
         for (var entry of formData.entries()) {
             configuration[entry[0]] = entry[1];
         }
-        console.log(configuration);
-        chrome.storage.sync.set({ configuration: configuration }, function () {
-            console.log('Settings saved');
-        });
+        chrome.storage.sync.set({ configuration: configuration });
 
         let separator = configuration['wordSeparator']
         let feature = configuration['taskFeature']
         let bugfix = configuration['bugfix']
         let itemNumber = configuration['itemNumber']
 
-        var dependentItems = document.getElementsByClassName('dependent');
-        console.log('dependentItems.length', dependentItems.length)
+        var dependentItems = document.getElementsByClassName('dependsOnNumber');
         for (var i = 0; i < dependentItems.length; i++) {
             dependentItems[i].style.display = itemNumber == 'none' ? 'none' : 'block';
         }
 
-        var dependentDiv = document.getElementsByClassName('dependentDiv');
-        for (var i = 0; i < dependentDiv.length; i++) {
-            dependentDiv[i].hidden = itemNumber != 'none';
+        var dependsIfNumber = document.getElementsByClassName('dependsIfNumber');
+        for (var i = 0; i < dependsIfNumber.length; i++) {
+            dependsIfNumber[i].hidden = itemNumber != 'none';
         }
 
-
         let orderOfDisplay = configuration['orderOfDisplay']
-        let numberSeparator = configuration['numberSeparator']
+
+        var dependentItems = document.getElementsByClassName('dependsOnPosition');
+        for (var i = 0; i < dependentItems.length; i++) {
+            dependentItems[i].style.display = orderOfDisplay == 'numberBeforeType' ? 'none' : 'block';;
+        }
+
+        var dependsIfNumber = document.getElementsByClassName('beforeNumber');
+        for (var i = 0; i < dependsIfNumber.length; i++) {
+            dependsIfNumber[i].hidden = orderOfDisplay != 'numberBeforeType';
+        }
+
+        let separatorAfterNumber = configuration['separatorAfterNumber']
+        let separatorBeforeNumber = configuration['separatorBeforeNumber']
         var featureBranchExample = ''
         var bugfixBranchExample = ''
         if (itemNumber == 'none') {
@@ -149,12 +146,12 @@ function showConfiguration(e) {
             featureBranchExample = `${feature}/this is a feature branch`.replace(/ /g, separator);
             bugfixBranchExample = `${bugfix}/this is a bugfix branch`.replace(/ /g, separator);
             if (orderOfDisplay == 'typeBeforeNumber') {
-                featureBranchExample = featureBranchExample.replace(/\//g, `/12345${numberSeparator}`);
-                bugfixBranchExample = bugfixBranchExample.replace(/\//g, `/12345${numberSeparator}`);
+                featureBranchExample = featureBranchExample.replace(/\//g, `${separatorBeforeNumber}12345${separatorAfterNumber}`);
+                bugfixBranchExample = bugfixBranchExample.replace(/\//g, `${separatorBeforeNumber}12345${separatorAfterNumber}`);
             }
             else {
-                featureBranchExample = featureBranchExample.replace(/^/, `12345${numberSeparator}`);
-                bugfixBranchExample = bugfixBranchExample.replace(/^/, `12345${numberSeparator}`);
+                featureBranchExample = featureBranchExample.replace(/^/, `12345${separatorAfterNumber}`);
+                bugfixBranchExample = bugfixBranchExample.replace(/^/, `12345${separatorAfterNumber}`);
             }
         }
 
@@ -198,9 +195,9 @@ function showConfiguration(e) {
         var radioGroup = createRadioButtonWrapper('Bug\Fix');
 
         let selectedValue = 'bug';
-        insertRadioButton(radioGroup, 'bugfix', 'bug', 'Bug', selectedValue);
-        insertRadioButton(radioGroup, 'bugfix', 'fix', 'Fix', selectedValue);
-        insertRadioButton(radioGroup, 'bugfix', 'bugfix', 'BugFix', selectedValue);
+        insertRadioButton(radioGroup, 'bugfix', 'bug', 'bug', selectedValue);
+        insertRadioButton(radioGroup, 'bugfix', 'fix', 'fix', selectedValue);
+        insertRadioButton(radioGroup, 'bugfix', 'bugfix', 'bugfix', selectedValue);
     }
 
     function createItemNumberRadioGroup() {
@@ -216,9 +213,9 @@ function showConfiguration(e) {
         var radioGroup = createRadioButtonWrapper('Task\Feature');
 
         let selectedValue = 'feature'
-        insertRadioButton(radioGroup, 'taskFeature', 'feature', 'Feature', selectedValue);
-        insertRadioButton(radioGroup, 'taskFeature', 'userStory', 'UserStory', selectedValue);
-        insertRadioButton(radioGroup, 'taskFeature', 'task', 'Task', selectedValue);
+        insertRadioButton(radioGroup, 'taskFeature', 'feature', 'feature', selectedValue);
+        insertRadioButton(radioGroup, 'taskFeature', 'userStory', 'userStory', selectedValue);
+        insertRadioButton(radioGroup, 'taskFeature', 'task', 'task', selectedValue);
     }
 
 
@@ -236,7 +233,7 @@ function showConfiguration(e) {
 
         var hiddenH3 = document.createElement('div');
         hiddenH3.hidden = 'none';
-        hiddenH3.className = 'dependentDiv';
+        hiddenH3.className = 'dependsIfNumber';
         hiddenH3.innerText = 'Item number must not be \'None\'';
         radioGroup.appendChild(hiddenH3);
 
@@ -245,23 +242,37 @@ function showConfiguration(e) {
         insertRadioButton(radioGroup, 'orderOfDisplay', 'typeBeforeNumber', 'Item Type Before Number', selectedValue, true);
     }
 
-    function createNumberSeparatorRadioGroup() {
-        var radioGroup = createRadioButtonWrapper('Separator on number');
+    function createSeparatorAfterNumberRadioGroup() {
+        var radioGroup = createRadioButtonWrapper('Separator After Number');
 
         var hiddenH3 = document.createElement('div');
         hiddenH3.hidden = 'none';
-        hiddenH3.className = 'dependentDiv';
+        hiddenH3.className = 'dependsIfNumber';
         hiddenH3.innerText = 'Item number must not be \'None\'';
         radioGroup.appendChild(hiddenH3);
 
         let selectedValue = '/'
-        insertRadioButton(radioGroup, 'numberSeparator', '/', 'Forward Slash (/)', selectedValue, true);
-        insertRadioButton(radioGroup, 'numberSeparator', '-', 'Hyphen (-)', selectedValue, true);
-        insertRadioButton(radioGroup, 'numberSeparator', '_', 'Underscore (_)', selectedValue, true);
-
+        insertRadioButton(radioGroup, 'separatorAfterNumber', '/', 'Forward Slash (/)', selectedValue, true);
+        insertRadioButton(radioGroup, 'separatorAfterNumber', '-', 'Hyphen (-)', selectedValue, true);
+        insertRadioButton(radioGroup, 'separatorAfterNumber', '_', 'Underscore (_)', selectedValue, true);
     }
 
-    function insertRadioButton(radioGroup, groupName, value, labelText, selectedValue, dependsOnNumber = false) {
+    function createSeparatorBeforeNumberRadioGroup() {
+        var radioGroup = createRadioButtonWrapper('Separator Before Number');
+
+        var hiddenH3 = document.createElement('div');
+        hiddenH3.hidden = 'none';
+        hiddenH3.className = 'beforeNumber';
+        hiddenH3.innerText = 'The number must not be first';
+        radioGroup.appendChild(hiddenH3);
+
+        let selectedValue = '/'
+        insertRadioButton(radioGroup, 'separatorBeforeNumber', '/', 'Forward Slash (/)', selectedValue, true, true);
+        insertRadioButton(radioGroup, 'separatorBeforeNumber', '-', 'Hyphen (-)', selectedValue, true, true);
+        insertRadioButton(radioGroup, 'separatorBeforeNumber', '_', 'Underscore (_)', selectedValue, true, true);
+    }
+
+    function insertRadioButton(radioGroup, groupName, value, labelText, selectedValue, dependsOnNumber = false, dependsOnPosition = false) {
 
         var radioDiv = document.createElement('div');
         radioDiv.style.display = 'flex';
@@ -280,9 +291,11 @@ function showConfiguration(e) {
         configurationRadioTaskLabel.innerText = labelText;
         configurationRadioTaskLabel.htmlFor = `radioInput${value}${labelText}${groupName}`;
         radioDiv.appendChild(configurationRadioTaskLabel);
-
+        if (dependsOnPosition) {
+            radioDiv.classList.add('dependsOnPosition');
+        }
         if (dependsOnNumber) {
-            radioDiv.className = 'dependent';
+            radioDiv.classList.add('dependsOnNumber');
         }
     }
 }
