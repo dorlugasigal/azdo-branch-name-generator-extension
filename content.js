@@ -23,7 +23,8 @@ function afterWindowLoaded() {
             }
 
             chrome.runtime.sendMessage({
-                type: 'from_content_script', content: {
+                type: 'from_content_script',
+                content: {
                     'workItem': parentItem.outerHTML,
                     'task': this.outerHTML
                 }

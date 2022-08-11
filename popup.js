@@ -1,4 +1,6 @@
 chrome.runtime.sendMessage({ type: 'from_popup' }, (response) => {
+    console.log(response);
+
     var target = response.task === undefined ? response.workItem : response.task;
     var parser = new DOMParser();
     var doc = parser.parseFromString(target, "text/html");
@@ -47,7 +49,6 @@ function showConfiguration(e) {
 
     chrome.storage.sync.get('configuration',
         function (result) {
-            console.log(result);
             configuration = result.configuration;
             initConfigurationSection(configurationForm);
         }
@@ -66,8 +67,6 @@ function showConfiguration(e) {
         // configurationHeader.innerText = 'Configuration';
         // configurationHeader.style.textAlign = 'center';
         // configurationDiv.appendChild(configurationHeader);
-
-
 
         setupForm();
 
@@ -101,7 +100,7 @@ function showConfiguration(e) {
             usernameInput.style.flex = '1';
             usernameInput.style.marginRight = '10px';
             usernameInput.value = userName;
-            usernameInput.onchange = onFormChange;
+            usernameInput.onkeyup = onFormChange;
             usernameDiv.appendChild(usernameInput);
 
             createUsernameRadioGroup(userName);
@@ -110,7 +109,6 @@ function showConfiguration(e) {
             configurationLabel.innerText = 'Naming Convention';
             configurationForm.appendChild(configurationLabel);
             configurationForm.onclick = onFormChange;
-            configurationForm.onkeyup = onFormChange;
 
             let feature = configuration['taskFeature'];
             let bugfix = configuration['bugfix'];
@@ -131,7 +129,7 @@ function showConfiguration(e) {
             createPreviewTitleH1();
             createPreviewH2('bugfixBranchNamePreview');
             createPreviewH2('featureBranchNamePreview');
-            onFormChange(configuration);
+            onFormChange(null, configuration);
         }
     }
 
@@ -150,12 +148,14 @@ function showConfiguration(e) {
         configurationForm.appendChild(previewDiv);
     }
 
-    function onFormChange(savedConfiguration = null) {
+    function onFormChange(event, savedConfiguration = null) {
         var configuration = {};
-        if (savedConfiguration != null) {
+        if (savedConfiguration != null && savedConfiguration != undefined || event != null) {
+            // on load or key press update storage with current configuration
             const formData = new FormData(document.querySelector('form'))
             for (var entry of formData.entries()) {
                 configuration[entry[0]] = entry[1];
+                console.log(entry[0] + ', ' + entry[1]);
             }
             console.log(configuration);
             chrome.storage.sync.set({ configuration: configuration });
@@ -193,6 +193,11 @@ function showConfiguration(e) {
         var dependsIfNumber = document.getElementsByClassName('beforeNumber');
         for (var i = 0; i < dependsIfNumber.length; i++) {
             dependsIfNumber[i].hidden = itemNumber == 'none' || orderOfDisplay != 'numberBeforeType';
+        }
+
+        var usernameRadioLabel = document.getElementsByClassName('isUserName');
+        for (var i = 0; i < usernameRadioLabel.length; i++) {
+            usernameRadioLabel[i].innerText = configuration['username'];
         }
 
         let separatorAfterNumber = configuration['separatorAfterNumber']
@@ -270,12 +275,14 @@ function showConfiguration(e) {
     }
 
 
-    function createUsernameRadioGroup(defaultValue = '') {
+    function createUsernameRadioGroup(defaultValue) {
         var radioGroup = createRadioButtonWrapper('Username Prefix');
 
-        insertRadioButton(radioGroup, 'username', 'none', 'None', defaultValue);
-        insertRadioButton(radioGroup, 'username', defaultValue, defaultValue, defaultValue);
-        insertRadioButton(radioGroup, 'username', 'WHAT', 'WHAT', defaultValue);
+        insertRadioButton(radioGroup, 'usernameStyle', 'none', 'None', defaultValue);
+        insertRadioButton(radioGroup, 'usernameStyle', defaultValue, defaultValue, defaultValue, false, false, true);
+        insertRadioButton(radioGroup, 'usernameStyle', 'johndoe', 'Assignee (johndoe)', defaultValue);
+        insertRadioButton(radioGroup, 'usernameStyle', 'doejohn', 'Assignee (doejohn)', defaultValue);
+        insertRadioButton(radioGroup, 'usernameStyle', 'j.doe', 'Assignee (j.doe)', defaultValue);
     }
 
 
@@ -347,7 +354,7 @@ function showConfiguration(e) {
         insertRadioButton(radioGroup, 'separatorBeforeNumber', '_', 'Underscore (_)', defaultValue, true, true);
     }
 
-    function insertRadioButton(radioGroup, groupName, value, labelText, selectedValue, dependsOnNumber = false, dependsOnPosition = false) {
+    function insertRadioButton(radioGroup, groupName, value, labelText, selectedValue, dependsOnNumber = false, dependsOnPosition = false, isUserName = false) {
 
         var radioDiv = document.createElement('div');
         radioDiv.style.display = 'flex';
@@ -362,6 +369,8 @@ function showConfiguration(e) {
         radioInput.checked = value == selectedValue;
         radioDiv.appendChild(radioInput);
 
+
+
         var configurationRadioTaskLabel = document.createElement('label');
         configurationRadioTaskLabel.innerText = labelText;
         configurationRadioTaskLabel.htmlFor = `radioInput${value}${labelText}${groupName}`;
@@ -371,6 +380,9 @@ function showConfiguration(e) {
         }
         if (dependsOnNumber) {
             radioDiv.classList.add('dependsOnNumber');
+        }
+        if (isUserName) {
+            configurationRadioTaskLabel.classList.add('isUserName');
         }
     }
 }
