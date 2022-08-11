@@ -2,60 +2,94 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('configure').addEventListener('click', showConfiguration);
 })
 
-document.addEventListener('DOMContentLoaded', function () {
-    document.getElementById('refresh').addEventListener('click', getStorage);
-})
+let workItem = {};
+let task = {};
 
-
-function getStorage() {
+function initData(config) {
     chrome.runtime.sendMessage({ type: 'from_popup' }, (response) => {
         console.log(response);
+        let workItem = response.workItem;
+        let task = response.task;
 
-        var target = response.task === undefined ? response.workItem : response.task;
-        var parser = new DOMParser();
-        var doc = parser.parseFromString(target, "text/html");
-
-        if (doc.getElementsByClassName('title ellipsis').length == 0) {
-            var noItemSelected = document.getElementById('branch');
-            noItemSelected.innerHTML = "No item selected";
+        if (workItem == undefined && task == undefined || workItem == undefined) {
+            var h2 = document.getElementById('branch');
+            h2.innerText = "No Item Selected";
             return;
         }
-
-        var title = doc.getElementsByClassName('title ellipsis')[0].innerText;
-
-        var branchName = title.toLowerCase().replace(/ /g, '-');
-
-        var branchName = branchName.replace(/[^a-zA-Z0-9-]/g, '-');
-
-        var workItemType = doc.getElementsByClassName('work-item-type-icon bowtie-icon')[0].getAttribute('aria-label');
-
-        if (workItemType.toLowerCase() == 'task') {
-            workItemType = 'feature';
+        if (config != undefined) {
+            updateBranchNameWithConfiguration(config, workItem, task);
+            return;
         }
-
-        var branchName = workItemType.toLowerCase() + '/' + branchName;
-        branchName = branchName.replace(/ /g, '');
-
-        var h2 = document.getElementById('branch');
-        h2.innerText = branchName;
-
-        var copyButton = document.getElementById('copyButton');
-        if (copyButton == null) {
-            copyButton = document.createElement('button');
-            copyButton.id = "copyButton";
-            copyButton.type = 'button';
-            copyButton.innerText = 'Copy';
-            copyButton.onclick = function () {
-                navigator.clipboard.writeText(branchName);
-            };
-            document.getElementById("content").appendChild(copyButton);
-        }
-        copyButton.onclick = function () {
-            navigator.clipboard.writeText(branchName);
-        };
+        var configuration = {};
+        chrome.storage.sync.get(['configuration'], (result) => {
+            configuration = result.configuration;
+            if (configuration == undefined) {
+                configuration = showConfiguration();
+            }
+            updateBranchNameWithConfiguration(configuration, workItem, task);
+        });
     });
 }
-getStorage();
+function updateBranchNameWithConfiguration(configuration, workItem, task) {
+    if (workItem == undefined && task == undefined) {
+        chrome.runtime.sendMessage({ type: 'from_popup' }, (response) => {
+            console.log(response);
+            let innerWorkItem = response.workItem;
+            let innerTask = response.task;
+            updateBranchNameWithConfigurationInner(configuration, innerWorkItem, innerTask);
+        });
+    }
+    else {
+        updateBranchNameWithConfigurationInner(configuration, workItem, task);
+    }
+}
+function updateBranchNameWithConfigurationInner(configuration, workItem, task) {
+
+    let feature = configuration['taskFeature'];
+    let bugfix = configuration['bugfix'];
+    let separator = configuration['wordSeparator'];
+    let itemNumber = configuration['itemNumber'];
+
+    let orderOfDisplay = configuration['orderOfDisplay'];
+    let separatorAfterNumber = configuration['separatorAfterNumber'];
+    let separatorBeforeNumber = configuration['separatorBeforeNumber'];
+
+
+    target = task == undefined ? workItem : task;
+    itemType = target.type == 'Bug' ? bugfix : feature;
+
+    var branchName = ''
+    if (itemNumber == 'none') {
+        branchName = `${itemType}/${target.name}`.replace(/ /g, separator);
+    }
+    else {
+        var number = 0;
+        if (itemNumber == 'taskNumber' && task != undefined) {
+            number = task.number
+        }
+        if (itemNumber == 'workItemNumber' || task == undefined) {
+            number = workItem.number;
+        }
+
+        branchName = `${itemType}/${target.name}`.replace(/ /g, separator);
+        if (orderOfDisplay == 'typeBeforeNumber') {
+            branchName = branchName.replace(/\//g, `${separatorBeforeNumber}${number}${separatorAfterNumber}`);
+        }
+        else {
+            branchName = branchName.replace(/^/, `${number}${separatorAfterNumber}`);
+        }
+    }
+
+    var h2 = document.getElementById('branch');
+    h2.innerText = branchName;
+    var copyButton = document.getElementById('copy');
+    copyButton.disabled = false;
+    copyButton.onclick = function () {
+        navigator.clipboard.writeText(branchName);
+    };
+}
+
+initData();
 
 function showConfiguration(e) {
     if (document.getElementById('configuration')) {
@@ -78,13 +112,7 @@ function showConfiguration(e) {
 
         configurationDiv.style.borderTop = '3px solid #000';
         configurationDiv.style.marginTop = '10px';
-
         configurationDiv.id = 'configuration';
-
-        // var configurationHeader = document.createElement('h1');
-        // configurationHeader.innerText = 'Configuration';
-        // configurationHeader.style.textAlign = 'center';
-        // configurationDiv.appendChild(configurationHeader);
 
         setupForm();
 
@@ -242,6 +270,8 @@ function showConfiguration(e) {
 
         bugfixBranchNamePreview.innerText = bugfixBranchExample;
         featureBranchNamePreview.innerText = featureBranchExample;
+
+        updateBranchNameWithConfiguration(configuration);
     }
 
     function createRadioButtonWrapper(label) {
@@ -349,8 +379,6 @@ function showConfiguration(e) {
     }
 
 
-
-
     function createSeparatorBeforeNumberRadioGroup(defaultValue = '/') {
         var radioGroup = createRadioButtonWrapper('Before Number');
 
@@ -386,8 +414,6 @@ function showConfiguration(e) {
         radioInput.checked = value == selectedValue;
         radioDiv.appendChild(radioInput);
 
-
-
         var configurationRadioTaskLabel = document.createElement('label');
         configurationRadioTaskLabel.innerText = labelText;
         configurationRadioTaskLabel.htmlFor = `radioInput${value}${labelText}${groupName}`;
@@ -402,5 +428,5 @@ function showConfiguration(e) {
             configurationRadioTaskLabel.classList.add('isUserName');
         }
     }
+    return configuration;
 }
-

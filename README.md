@@ -1,5 +1,12 @@
 # azdo-branch-name-generator-extension
 
+## Disclaimer
+
+The code used in this extension, is an ugly spaghetti vanilla javascript code.  
+If i would write it again, I would probably use React to acheive a more modular and reusable code.  
+This is the first exension I wrote, and only by the end i was noticed that it could be made with React.  
+but, as it would probably not be maintained, i decided to keep it this way... until i decide to re write it :)
+
 ## Description
 
 This extension will help you generate a branch name for your work item.

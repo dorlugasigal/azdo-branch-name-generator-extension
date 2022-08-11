@@ -15,23 +15,32 @@ function afterWindowLoaded() {
             analyse(i);
         }
     }
-
+    function parseItem(item) {
+        var itemDetails = {};
+        if (item == undefined || item == null) {
+            return undefined;
+        }
+        itemDetails.type = item.getElementsByClassName('work-item-type-icon')[0].getAttribute('aria-label');
+        itemDetails.assignee = item.getElementsByClassName('identity-picker-resolved-name')[0].innerText;
+        itemDetails.number = item.getElementsByClassName('id')[0].innerText;
+        itemDetails.name = item.getElementsByClassName('clickable-title')[0].innerText;
+        return itemDetails;
+    }
     function analyse(index) {
         var workItemTypeIcon = tbTileContent[index].getElementsByClassName('work-item-type-icon')[0];
         var typeOfItem = workItemTypeIcon.getAttribute('aria-label');
         let userStory = {};
         let task = {};
-
         switch (typeOfItem) {
             case 'User Story':
                 task = undefined;
-                userStory = tbTileContent[index].outerHTML;
+                userStory = parseItem(tbTileContent[index]);
                 break;
             case 'Task':
                 var row = tbTileContent[index].parentElement.parentElement.parentElement;
                 var parent = row.getElementsByClassName("tbTileContent")[0];
-                task = tbTileContent[index].outerHTML;
-                userStory = parent.outerHTML;
+                task = parseItem(tbTileContent[index]);
+                userStory = parseItem(parent);
                 break;
         }
         chrome.runtime.sendMessage({
