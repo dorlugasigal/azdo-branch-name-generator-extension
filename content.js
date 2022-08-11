@@ -5,30 +5,41 @@ if (document.readyState !== 'complete') {
 }
 
 function afterWindowLoaded() {
-    var tbTileContent = document.getElementsByClassName('tbTile ui-draggable ui-draggable-handle');
+    var tbTileContent = document.getElementsByClassName('tbTileContent');
 
-    for (var i = 0; i < tbTileContent.length; i++) {
-        //tbTileContent[i].onfocus = sendDetails;
-        tbTileContent[i].onclick = sendDetails;
-
-        function sendDetails() {
-            var parent = this.parentElement.parentElement;
-            let parentItem = {}
-            if (this.classList.contains('parentTbTile')) {
-                workitem = undefined;
-                parentItem = this;
-            }
-            else {
-                parentItem = parent.getElementsByClassName('taskboard-cell taskboard-parent highlight-on-row-change')[0];
-            }
-
-            chrome.runtime.sendMessage({
-                type: 'from_content_script',
-                content: {
-                    'workItem': parentItem.outerHTML,
-                    'task': this.outerHTML
-                }
-            });
-        };
+    for (var i = 0; i < tbTileContent.length - 1; i++) {
+        tbTileContent[i].addEventListener('click', clicked(i));
     }
+    function clicked(i) {
+        return function () {
+            analyse(i);
+        }
+    }
+
+    function analyse(index) {
+        var workItemTypeIcon = tbTileContent[index].getElementsByClassName('work-item-type-icon')[0];
+        var typeOfItem = workItemTypeIcon.getAttribute('aria-label');
+        let userStory = {};
+        let task = {};
+
+        switch (typeOfItem) {
+            case 'User Story':
+                task = undefined;
+                userStory = tbTileContent[index].outerHTML;
+                break;
+            case 'Task':
+                var row = tbTileContent[index].parentElement.parentElement.parentElement;
+                var parent = row.getElementsByClassName("tbTileContent")[0];
+                task = tbTileContent[index].outerHTML;
+                userStory = parent.outerHTML;
+                break;
+        }
+        chrome.runtime.sendMessage({
+            type: 'from_content_script',
+            content: {
+                'workItem': userStory,
+                'task': task
+            }
+        });
+    };
 }

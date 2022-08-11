@@ -1,43 +1,61 @@
-chrome.runtime.sendMessage({ type: 'from_popup' }, (response) => {
-    console.log(response);
+document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById('configure').addEventListener('click', showConfiguration);
+})
 
-    var target = response.task === undefined ? response.workItem : response.task;
-    var parser = new DOMParser();
-    var doc = parser.parseFromString(target, "text/html");
+document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById('refresh').addEventListener('click', getStorage);
+})
 
-    if (doc.getElementsByClassName('title ellipsis').length == 0) {
-        var noItemSelected = document.getElementById('branch');
-        noItemSelected.innerHTML = "No item selected";
-        return;
-    }
 
-    var title = doc.getElementsByClassName('title ellipsis')[0].innerText;
+function getStorage() {
+    chrome.runtime.sendMessage({ type: 'from_popup' }, (response) => {
+        console.log(response);
 
-    var branchName = title.toLowerCase().replace(/ /g, '-');
+        var target = response.task === undefined ? response.workItem : response.task;
+        var parser = new DOMParser();
+        var doc = parser.parseFromString(target, "text/html");
 
-    var branchName = branchName.replace(/[^a-zA-Z0-9-]/g, '-');
+        if (doc.getElementsByClassName('title ellipsis').length == 0) {
+            var noItemSelected = document.getElementById('branch');
+            noItemSelected.innerHTML = "No item selected";
+            return;
+        }
 
-    var workItemType = doc.getElementsByClassName('work-item-type-icon bowtie-icon')[0].getAttribute('aria-label');
+        var title = doc.getElementsByClassName('title ellipsis')[0].innerText;
 
-    if (workItemType.toLowerCase() == 'task') {
-        workItemType = 'feature';
-    }
+        var branchName = title.toLowerCase().replace(/ /g, '-');
 
-    var branchName = workItemType.toLowerCase() + '/' + branchName;
-    branchName = branchName.replace(/ /g, '');
+        var branchName = branchName.replace(/[^a-zA-Z0-9-]/g, '-');
 
-    var h2 = document.getElementById('branch');
-    h2.innerText = branchName;
+        var workItemType = doc.getElementsByClassName('work-item-type-icon bowtie-icon')[0].getAttribute('aria-label');
 
-    var copyButton = document.createElement('button');
-    copyButton.type = 'button';
-    copyButton.innerText = 'Copy';
-    copyButton.onclick = function () {
-        navigator.clipboard.writeText(branchName);
-    }
-    document.getElementById("content").appendChild(copyButton);
-});
+        if (workItemType.toLowerCase() == 'task') {
+            workItemType = 'feature';
+        }
 
+        var branchName = workItemType.toLowerCase() + '/' + branchName;
+        branchName = branchName.replace(/ /g, '');
+
+        var h2 = document.getElementById('branch');
+        h2.innerText = branchName;
+
+        var copyButton = document.getElementById('copyButton');
+        if (copyButton == null) {
+            copyButton = document.createElement('button');
+            copyButton.id = "copyButton";
+            copyButton.type = 'button';
+            copyButton.innerText = 'Copy';
+            copyButton.onclick = function () {
+                navigator.clipboard.writeText(branchName);
+            };
+            document.getElementById("content").appendChild(copyButton);
+        }
+        copyButton.onclick = function () {
+            navigator.clipboard.writeText(branchName);
+        };
+    });
+}
+getStorage();
 
 function showConfiguration(e) {
     if (document.getElementById('configuration')) {
@@ -270,8 +288,8 @@ function showConfiguration(e) {
         var radioGroup = createRadioButtonWrapper('Item number');
 
         insertRadioButton(radioGroup, 'itemNumber', 'none', 'None', defaultValue);
-        insertRadioButton(radioGroup, 'itemNumber', 'workItemNumber', 'Work Item Number', defaultValue);
         insertRadioButton(radioGroup, 'itemNumber', 'taskNumber', 'Task Number', defaultValue);
+        insertRadioButton(radioGroup, 'itemNumber', 'workItemNumber', 'Work Item Number', defaultValue);
     }
 
 
@@ -293,7 +311,6 @@ function showConfiguration(e) {
         insertRadioButton(radioGroup, 'taskFeature', 'userStory', 'userStory', defaultValue);
         insertRadioButton(radioGroup, 'taskFeature', 'task', 'task', defaultValue);
     }
-
 
 
     function createWordSeparatorRadioGroup(defaultValue = '-') {
@@ -387,6 +404,3 @@ function showConfiguration(e) {
     }
 }
 
-document.addEventListener('DOMContentLoaded', function () {
-    document.getElementById('configure').addEventListener('click', showConfiguration);
-})
