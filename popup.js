@@ -97,11 +97,21 @@ function showConfiguration(e) {
         return;
     }
     var configurationForm = document.createElement('form');
-    let configuration = {};
+    let configuration = {
+        taskFeature: 'feature',
+        bugfix: 'bugfix',
+        wordSeparator: '-',
+        itemNumber: 'workItemNumber',
+        orderOfDisplay: 'numberBeforeType',
+        separatorAfterNumber: '/',
+        separatorBeforeNumber: '-',
+        username: 'enter username'
+    };
 
     chrome.storage.sync.get('configuration',
         function (result) {
-            configuration = result.configuration;
+            configuration = result.configuration == undefined ? configuration : result.configuration;
+            result.configuration;
             initConfigurationSection(configurationForm);
         }
     );
@@ -138,7 +148,7 @@ function showConfiguration(e) {
             usernameLabel.for = 'username';
             usernameDiv.appendChild(usernameLabel);
 
-            let userName = (configuration.username) ? `${configuration.username}` : '';
+            let userName = (configuration != undefined && configuration.username != undefined) ? `${configuration.username}` : '';
             var usernameInput = document.createElement('input');
             usernameInput.type = 'text';
             usernameInput.id = 'username';
