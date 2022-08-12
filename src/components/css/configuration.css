@@ -1,0 +1,27 @@
+.row {
+    display: flex;
+    flex-direction: row;
+}
+.section {
+    flex: 2;
+    padding: 0.2em;
+    padding-right: 1em;
+    padding-left: 1em;
+    margin: 0.1em;
+    border-radius: 5px;
+    border: 3px solid rebeccapurple;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.2em;
+    font-size: x-large;
+    vertical-align: center;
+    user-select: none;
+}
+.separator {
+    flex: 1;
+}
+.selected {
+    background-color: rebeccapurple;
+    color: white;
+    border: 3px solid mediumpurple;
+}
