@@ -12,28 +12,7 @@ import Tooltip from '@mui/material/Tooltip';
 import { previewExample } from './utils/configurationHandler';
 import { configurationOptions } from './config/options';
 
-export default function Configuration() {
-    const [config, setConfig] = useState({
-        usernameActual: 'user',
-        username: 'personal',
-        type: {
-            regular: 'feature',
-            bug: 'fix',
-        },
-        number: 'work-item',
-        order: {
-            first: 'username',
-            second: 'number',
-            third: 'type',
-            fourth: 'name',
-        },
-        separators: {
-            first: '/',
-            second: '/',
-            third: '/',
-            other: '-',
-        },
-    });
+export default function Configuration({ config, setConfig }) {
     const [previewBug, setPreviewBug] = useState('');
     const [previewFeature, setPreviewFeature] = useState('');
     const [selectedSegment, setSelectedSegment] = useState(null);
@@ -233,6 +212,7 @@ export default function Configuration() {
                     )}
                 {selectedSegment && getSelectedSegmentOptions()}
             </div>
+            <h1>Examples</h1>
             <h2>{previewBug}</h2>
             <h2>{previewFeature}</h2>
         </div>
