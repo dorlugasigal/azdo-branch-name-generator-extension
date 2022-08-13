@@ -34,13 +34,29 @@ export default function Configuration() {
             case 'personal':
                 return config.usernameActual;
             case 'johndoe':
-                return item.assignee.replace(/\s/g, '').toLowerCase();
+                return item[item.task ? 'task' : 'workItem'].assignee.replace(/\s/g, '').toLowerCase();
             case 'doejohn':
-                return item.assignee.replace(/\s/g, '').toLowerCase().split('').reverse().join('');
+                return item[item.task ? 'task' : 'workItem'].assignee
+                    .split(' ')
+                    .reverse()
+                    .join('')
+                    .replace(/\s/g, '')
+                    .toLowerCase();
         }
     };
+    Array.prototype.swap = function () {
+        var len = this.length;
+        for (var i = 0; i < len / 2; i++) {
+            var tmp = this[i];
+            this[i] = this[len - i - 1];
+            this[len - i - 1] = tmp;
+        }
+        return this;
+    };
+
     const numberHandler = (item) => (config.number === 'work-item' ? item.workItem.number : item.task.number);
-    const typeHandler = (item) => (item.type === 'bug' ? config.type.bug : config.type.regular);
+    const typeHandler = (item) =>
+        item[item.task ? 'task' : 'workItem'].type === 'bug' ? config.type.bug : config.type.regular;
     const nameHandler = (item) => item[item.task ? 'task' : 'workItem'].name.replace(/ /g, config.separators.other);
     const handle = (action, item) => {
         switch (action) {
@@ -57,8 +73,21 @@ export default function Configuration() {
         }
     };
 
-    const previewExample = () => {
-        var task = { name: 'this is feature test', type: 'feature', assignee: 'Dor Lugasi', number: 123 };
+    const [previewBug, setPreviewBug] = useState('');
+    const [previewFeature, setPreviewFeature] = useState('');
+
+    useEffect(() => {
+        setPreviewBug(previewExample(true));
+        setPreviewFeature(previewExample(false));
+    }, [config]);
+
+    const previewExample = (isBug) => {
+        var task = {
+            name: `this is a ${isBug ? 'bug' : 'feature'} branch name`,
+            type: isBug ? 'bug' : 'feature',
+            assignee: 'Dor Lugasi',
+            number: 123,
+        };
         var workItem = { name: 'this is workitem test', type: 'userstory', assignee: 'Dor Lugasi', number: 456 };
         var item = {
             task,
@@ -71,7 +100,7 @@ export default function Configuration() {
             config.order.fourth,
             item
         )}`;
-        console.log(branchName);
+        return branchName;
     };
 
     const configurationOptions = {
@@ -112,6 +141,7 @@ export default function Configuration() {
             setSelectedSettings(null);
         }
     }, [selectedSegment]);
+
     const log = (e) => {
         console.log(`${selectedSegment} : ${selectedSettings} : ${e.target.value}`);
     };
@@ -124,8 +154,10 @@ export default function Configuration() {
                     <RadioGroup
                         aria-labelledby="demo-radio-buttons-group-label"
                         name={`settings-regular-options-radio-group`}
-                        defaultValue={configurationOptions.type.regular[0].value}
-                        onChange={log}
+                        onChange={(e) => {
+                            setConfig({ ...config, type: { regular: e.target.value, bug: config.type.bug } });
+                        }}
+                        value={config.type.regular}
                     >
                         {configurationOptions.type.regular.map((option) => (
                             <FormControlLabel
@@ -138,9 +170,11 @@ export default function Configuration() {
                     </RadioGroup>
                     <RadioGroup
                         aria-labelledby="demo-radio-buttons-group-label"
-                        defaultValue={configurationOptions.type.bug[0].value}
                         name={`settings-bug-options-radio-group`}
-                        onChange={log}
+                        value={config.type.bug}
+                        onChange={(e) => {
+                            setConfig({ ...config, type: { regular: config.type.regular, bug: e.target.value } });
+                        }}
                     >
                         {configurationOptions.type.bug.map((option) => (
                             <FormControlLabel
@@ -154,12 +188,15 @@ export default function Configuration() {
                 </div>
             );
 
-        if (selectedSettings == 'username')
+        if (selectedSettings == 'username' || selectedSettings == 'number') {
             return (
                 <RadioGroup
                     aria-labelledby="demo-radio-buttons-group-label"
                     name={`settings-${selectedSettings}-options-radio-group`}
-                    onChange={log}
+                    value={config[selectedSettings]}
+                    onChange={(e) => {
+                        setConfig({ ...config, [selectedSettings]: e.target.value });
+                    }}
                 >
                     {configurationOptions[selectedSettings].map((option) => (
                         <FormControlLabel
@@ -171,15 +208,25 @@ export default function Configuration() {
                     ))}
                 </RadioGroup>
             );
-
-        if (selectedSettings == 'number')
+        }
+        if (selectedSettings == 'name') {
             return (
                 <RadioGroup
+                    row
                     aria-labelledby="demo-radio-buttons-group-label"
-                    name={`settings-${selectedSettings}-options-radio-group`}
-                    onChange={log}
+                    name={`select-name-separator-radio-group`}
+                    value={config.separators.other}
+                    onChange={(e) => {
+                        setConfig((prev) => ({
+                            ...prev,
+                            separators: {
+                                ...prev.separators,
+                                other: e.target.value,
+                            },
+                        }));
+                    }}
                 >
-                    {configurationOptions[selectedSettings].map((option) => (
+                    {configurationOptions.separators.map((option) => (
                         <FormControlLabel
                             key={option.value}
                             value={option.value}
@@ -189,6 +236,7 @@ export default function Configuration() {
                     ))}
                 </RadioGroup>
             );
+        }
     };
 
     const createDataDiv = (position) => (
@@ -288,13 +336,8 @@ export default function Configuration() {
 
                 {selectedSegment && getSelectedSegmentOptions()}
             </div>
-            <h1
-                onClick={() => {
-                    previewExample();
-                }}
-            >
-                Configuration
-            </h1>
+            <h2>{previewBug}</h2>
+            <h2>{previewFeature}</h2>
         </div>
     );
 }
