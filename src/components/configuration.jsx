@@ -168,7 +168,7 @@ export default function Configuration() {
 
     const generateOptions = (source) =>
         source.map((option) => (
-            <>
+            <div key={option.value}>
                 <FormControlLabel key={option.value} value={option.value} control={<Radio />} label={option.label} />
                 {option.tooltip && (
                     <Tooltip title={option.tooltip}>
@@ -177,7 +177,7 @@ export default function Configuration() {
                         </IconButton>
                     </Tooltip>
                 )}
-            </>
+            </div>
         ));
 
     return (
