@@ -39,7 +39,7 @@ export const previewExample = (config, isBug) => {
     var task = {
         name: `this is a ${isBug ? 'bug' : 'feature'} branch name`,
         type: isBug ? 'bug' : 'feature',
-        assignee: 'Dor Lugasi',
+        assignee: 'John Doe',
         number: 123,
     };
     var workItem = { name: 'this is workitem test', type: 'userstory', assignee: 'Dor Lugasi', number: 456 };

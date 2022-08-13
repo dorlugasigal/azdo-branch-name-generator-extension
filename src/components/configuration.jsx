@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import './css/configuration.css';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
+import TextField from '@mui/material/TextField';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormLabel from '@mui/material/FormLabel';
 import InfoIcon from '@mui/icons-material/Info';
@@ -13,7 +14,7 @@ import { configurationOptions } from './config/options';
 
 export default function Configuration() {
     const [config, setConfig] = useState({
-        usernameActual: 'dorlu',
+        usernameActual: 'user',
         username: 'personal',
         type: {
             regular: 'feature',
@@ -52,13 +53,31 @@ export default function Configuration() {
     const getSelectedSegmentOptions = () => {
         switch (selectedSettings) {
             case 'username':
-                return generateRadioGroup(
-                    'How do you want to display the username?',
-                    config[selectedSettings],
-                    configurationOptions[selectedSettings],
-                    (e) => {
-                        setConfig({ ...config, [selectedSettings]: e.target.value });
-                    }
+                return (
+                    <div>
+                        <div>
+                            <TextField
+                                id="outlined-basic"
+                                label="your preferred username"
+                                variant="standard"
+                                value={config.usernameActual}
+                                onChange={(e) => {
+                                    setConfig({
+                                        ...config,
+                                        usernameActual: e.target.value,
+                                    });
+                                }}
+                            />
+                        </div>
+                        {generateRadioGroup(
+                            'How do you want to display the username?',
+                            config[selectedSettings],
+                            configurationOptions[selectedSettings],
+                            (e) => {
+                                setConfig({ ...config, [selectedSettings]: e.target.value });
+                            }
+                        )}
+                    </div>
                 );
             case 'number':
                 return generateRadioGroup(

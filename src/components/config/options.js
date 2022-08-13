@@ -1,6 +1,6 @@
 export const configurationOptions = {
     username: [
-        { value: 'personal', label: 'Your username' },
+        { value: 'personal', label: 'Your preferred username' },
         {
             value: 'johndoe',
             label: 'john doe (no spaces)',
