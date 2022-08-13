@@ -68,6 +68,8 @@ export default function Configuration() {
                 return numberHandler(item);
             case 'name':
                 return nameHandler(item);
+            case 'disabled':
+                return '';
             default:
                 return '';
         }
@@ -129,6 +131,7 @@ export default function Configuration() {
             { value: '/', label: 'Forward Slash (/)' },
             { value: '-', label: 'Hyphen (-)' },
             { value: '_', label: 'Underscore (_)' },
+            { value: '', label: 'Disabled' },
         ],
     };
 
@@ -248,7 +251,7 @@ export default function Configuration() {
                 setSelectedSettings(config.order[position]);
             }}
         >
-            {config.order[`${position}`]}
+            {config.order[`${position}`] == 'disabled' ? '' : config.order[`${position}`]}
         </div>
     );
 
@@ -305,7 +308,7 @@ export default function Configuration() {
                         <FormControlLabel value={'type'} control={<Radio />} label={'Item Type'} />
                         <FormControlLabel value={'username'} control={<Radio />} label={'Username'} />
                         <FormControlLabel value={'name'} control={<Radio />} label={'Item Name'} />
-                        <FormControlLabel value={'disable'} control={<Radio />} label={'Disable'} />
+                        <FormControlLabel value={'disabled'} control={<Radio />} label={'Disable'} />
                     </RadioGroup>
                 )}
                 {selectedSegment && selectedSegment.includes('separator') && (
