@@ -7,6 +7,73 @@ import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
 
 export default function Configuration() {
+    const [config, setConfig] = useState({
+        usernameActual: 'dorlu',
+        username: 'personal',
+        type: {
+            regular: 'feature',
+            bug: 'fix',
+        },
+        number: 'work-item',
+        order: {
+            first: 'username',
+            second: 'number',
+            third: 'type',
+            fourth: 'name',
+        },
+        separators: {
+            first: '/',
+            second: '/',
+            third: '/',
+            other: '-',
+        },
+    });
+
+    const usernameHandler = (item) => {
+        switch (config.username) {
+            case 'personal':
+                return config.usernameActual;
+            case 'johndoe':
+                return item.assignee.replace(/\s/g, '').toLowerCase();
+            case 'doejohn':
+                return item.assignee.replace(/\s/g, '').toLowerCase().split('').reverse().join('');
+        }
+    };
+    const numberHandler = (item) => (config.number === 'work-item' ? item.workItem.number : item.task.number);
+    const typeHandler = (item) => (item.type === 'bug' ? config.type.bug : config.type.regular);
+    const nameHandler = (item) => item[item.task ? 'task' : 'workItem'].name.replace(/ /g, config.separators.other);
+    const handle = (action, item) => {
+        switch (action) {
+            case 'username':
+                return usernameHandler(item);
+            case 'type':
+                return typeHandler(item);
+            case 'number':
+                return numberHandler(item);
+            case 'name':
+                return nameHandler(item);
+            default:
+                return '';
+        }
+    };
+
+    const previewExample = () => {
+        var task = { name: 'this is feature test', type: 'feature', assignee: 'Dor Lugasi', number: 123 };
+        var workItem = { name: 'this is workitem test', type: 'userstory', assignee: 'Dor Lugasi', number: 456 };
+        var item = {
+            task,
+            workItem,
+        };
+        var branchName = `${handle(config.order.first, item)}${config.separators.first}${handle(
+            config.order.second,
+            item
+        )}${config.separators.second}${handle(config.order.third, item)}${config.separators.third}${handle(
+            config.order.fourth,
+            item
+        )}`;
+        console.log(branchName);
+    };
+
     const configurationOptions = {
         username: [
             { value: 'personal', label: 'Your username' },
@@ -123,30 +190,35 @@ export default function Configuration() {
                 </RadioGroup>
             );
     };
+
     const createDataDiv = (position) => (
         <div
-            className={`section ${selectedSegment === `${position}Data` ? 'selected' : ''}`}
+            className={`section ${selectedSegment === `${position}-data` ? 'selected' : ''}`}
             onClick={() => {
-                setSelectedSegment(`${position}Data`);
+                console.log(`Selected Segment: ${position}-data`);
+                setSelectedSegment(`${position}-data`);
+                setSelectedSettings(config.order[position]);
             }}
         >
-            {position}
+            {config.order[`${position}`]}
         </div>
     );
 
     const createSeparatorDiv = (position) => (
         <div
-            className={`section separator ${selectedSegment === `${position}Separator` ? 'selected' : ''}`}
+            className={`section separator ${selectedSegment === `${position}-separator` ? 'selected' : ''}`}
             onClick={() => {
-                setSelectedSegment(`${position}Separator`);
+                console.log(`Selected Segment: ${position}-separator`);
+                setSelectedSegment(`${position}-separator`);
+                setSelectedSettings(config.separators[position]);
             }}
         >
-            /
+            {config.separators[`${position}`]}
         </div>
     );
 
-    return (
-        <div>
+    const createBranchConfigurationSections = () => {
+        return (
             <div className="row">
                 {createDataDiv('first')}
                 {createSeparatorDiv('first')}
@@ -156,18 +228,28 @@ export default function Configuration() {
                 {createSeparatorDiv('third')}
                 {createDataDiv('fourth')}
             </div>
+        );
+    };
 
+    return (
+        <div>
+            {createBranchConfigurationSections()}
             <div className="options">
                 <div>selectedSegment {selectedSegment}</div>
             </div>
             <div>
-                {selectedSegment && !selectedSegment.includes('Separator') && (
+                {selectedSegment && !selectedSegment.includes('separator') && (
                     <RadioGroup
                         row
                         aria-labelledby="demo-radio-buttons-group-label"
                         name={`select-setting-radio-group`}
+                        value={config.order[selectedSegment.split('-')[0]]}
                         onChange={(e) => {
                             setSelectedSettings(e.target.value);
+                            setConfig((prev) => ({
+                                ...prev,
+                                order: { ...prev.order, [selectedSegment.split('-')[0]]: e.target.value },
+                            }));
                             log(e);
                         }}
                     >
@@ -178,14 +260,18 @@ export default function Configuration() {
                         <FormControlLabel value={'disable'} control={<Radio />} label={'Disable'} />
                     </RadioGroup>
                 )}
-
-                {selectedSegment && selectedSegment.includes('Separator') && (
+                {selectedSegment && selectedSegment.includes('separator') && (
                     <RadioGroup
                         row
                         aria-labelledby="demo-radio-buttons-group-label"
                         name={`select-separator-radio-group`}
+                        value={config.separators[selectedSegment.split('-')[0]]}
                         onChange={(e) => {
                             setSelectedSettings(e.target.value);
+                            setConfig((prev) => ({
+                                ...prev,
+                                separators: { ...prev.separators, [selectedSegment.split('-')[0]]: e.target.value },
+                            }));
                             log(e);
                         }}
                     >
@@ -202,7 +288,13 @@ export default function Configuration() {
 
                 {selectedSegment && getSelectedSegmentOptions()}
             </div>
-            <h1>Configuration</h1>
+            <h1
+                onClick={() => {
+                    previewExample();
+                }}
+            >
+                Configuration
+            </h1>
         </div>
     );
 }
