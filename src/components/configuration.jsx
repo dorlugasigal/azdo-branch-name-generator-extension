@@ -3,6 +3,11 @@ import './css/configuration.css';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import FormLabel from '@mui/material/FormLabel';
+import InfoIcon from '@mui/icons-material/Info';
+import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
+
 import { previewExample } from './utils/configurationHandler';
 import { configurationOptions } from './config/options';
 
@@ -47,30 +52,58 @@ export default function Configuration() {
     const getSelectedSegmentOptions = () => {
         switch (selectedSettings) {
             case 'username':
+                return generateRadioGroup(
+                    'How do you want to display the username?',
+                    config[selectedSettings],
+                    configurationOptions[selectedSettings],
+                    (e) => {
+                        setConfig({ ...config, [selectedSettings]: e.target.value });
+                    }
+                );
             case 'number':
-                return generateRadioGroup(config[selectedSettings], configurationOptions[selectedSettings], (e) => {
-                    setConfig({ ...config, [selectedSettings]: e.target.value });
-                });
+                return generateRadioGroup(
+                    'Where is the number coming from?',
+                    config[selectedSettings],
+                    configurationOptions[selectedSettings],
+                    (e) => {
+                        setConfig({ ...config, [selectedSettings]: e.target.value });
+                    }
+                );
             case 'name':
-                return generateRadioGroup(config.separators.other, configurationOptions.separators, (e) => {
-                    setConfig((prev) => ({
-                        ...prev,
-                        separators: {
-                            ...prev.separators,
-                            other: e.target.value,
-                        },
-                    }));
-                });
+                return generateRadioGroup(
+                    'Which kind of a separator to put between each word?',
+                    config.separators.other,
+                    configurationOptions.separators,
+                    (e) => {
+                        setConfig((prev) => ({
+                            ...prev,
+                            separators: {
+                                ...prev.separators,
+                                other: e.target.value,
+                            },
+                        }));
+                    }
+                );
             case 'type':
                 return (
                     <div>
-                        {generateRadioGroup(config.type.regular, configurationOptions.type.regular, (e) => {
-                            setConfig({ ...config, type: { regular: e.target.value, bug: config.type.bug } });
-                        })}
+                        {generateRadioGroup(
+                            'How would you like to call your tasks?',
+                            config.type.regular,
+                            configurationOptions.type.regular,
+                            (e) => {
+                                setConfig({ ...config, type: { regular: e.target.value, bug: config.type.bug } });
+                            }
+                        )}
 
-                        {generateRadioGroup(config.type.bug, configurationOptions.type.bug, (e) => {
-                            setConfig({ ...config, type: { regular: config.type.regular, bug: e.target.value } });
-                        })}
+                        {generateRadioGroup(
+                            "It's a bug! How should we call it?",
+                            config.type.bug,
+                            configurationOptions.type.bug,
+                            (e) => {
+                                setConfig({ ...config, type: { regular: config.type.regular, bug: e.target.value } });
+                            }
+                        )}
                     </div>
                 );
             default:
@@ -78,10 +111,19 @@ export default function Configuration() {
         }
     };
 
-    const generateRadioGroup = (value, optionsSource, onChange) => (
-        <RadioGroup row aria-labelledby="demo-radio-buttons-group-label" value={value} onChange={onChange}>
-            {generateOptions(optionsSource)}
-        </RadioGroup>
+    const generateRadioGroup = (title, value, optionsSource, onChange) => (
+        <>
+            <FormLabel id={`radio-buttons-group-label-${title}`}>{title}</FormLabel>
+            <RadioGroup
+                className="radio-group"
+                row
+                aria-labelledby="demo-radio-buttons-group-label"
+                value={value}
+                onChange={onChange}
+            >
+                {generateOptions(optionsSource)}
+            </RadioGroup>
+        </>
     );
 
     const createDataDiv = (position) => (
@@ -126,48 +168,50 @@ export default function Configuration() {
 
     const generateOptions = (source) =>
         source.map((option) => (
-            <FormControlLabel key={option.value} value={option.value} control={<Radio />} label={option.label} />
+            <>
+                <FormControlLabel key={option.value} value={option.value} control={<Radio />} label={option.label} />
+                {option.tooltip && (
+                    <Tooltip title={option.tooltip}>
+                        <IconButton>
+                            <InfoIcon />
+                        </IconButton>
+                    </Tooltip>
+                )}
+            </>
         ));
 
     return (
         <div className="configuration">
             {createBranchConfigurationSections()}
             <div>
-                {selectedSegment && !selectedSegment.includes('separator') && (
-                    <RadioGroup
-                        row
-                        aria-labelledby="demo-radio-buttons-group-label"
-                        name={`select-setting-radio-group`}
-                        value={config.order[selectedSegment.split('-')[0]]}
-                        onChange={(e) => {
+                {selectedSegment &&
+                    !selectedSegment.includes('separator') &&
+                    generateRadioGroup(
+                        'What type of data?',
+                        config.order[selectedSegment.split('-')[0]],
+                        configurationOptions.data,
+                        (e) => {
                             setSelectedSettings(e.target.value);
                             setConfig((prev) => ({
                                 ...prev,
                                 order: { ...prev.order, [selectedSegment.split('-')[0]]: e.target.value },
                             }));
-                        }}
-                    >
-                        {generateOptions(configurationOptions.data)}
-                    </RadioGroup>
-                )}
-                {selectedSegment && selectedSegment.includes('separator') && (
-                    <RadioGroup
-                        row
-                        aria-labelledby="demo-radio-buttons-group-label"
-                        name={`select-separator-radio-group`}
-                        value={config.separators[selectedSegment.split('-')[0]]}
-                        onChange={(e) => {
+                        }
+                    )}
+                {selectedSegment &&
+                    selectedSegment.includes('separator') &&
+                    generateRadioGroup(
+                        'Which kind of a separator to put between the sections?',
+                        config.separators[selectedSegment.split('-')[0]],
+                        configurationOptions.separators,
+                        (e) => {
                             setSelectedSettings(e.target.value);
                             setConfig((prev) => ({
                                 ...prev,
                                 separators: { ...prev.separators, [selectedSegment.split('-')[0]]: e.target.value },
                             }));
-                        }}
-                    >
-                        {generateOptions(configurationOptions.separators)}
-                    </RadioGroup>
-                )}
-
+                        }
+                    )}
                 {selectedSegment && getSelectedSegmentOptions()}
             </div>
             <h2>{previewBug}</h2>

@@ -25,6 +25,9 @@
 .separator {
     flex: 1;
 }
+.radio-group {
+    border-bottom: 2px solid #ccc;
+}
 .selected {
     background-color: rebeccapurple;
     color: white;
