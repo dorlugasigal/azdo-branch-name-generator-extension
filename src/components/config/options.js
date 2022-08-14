@@ -37,6 +37,19 @@ export const configurationOptions = {
                 'if you select a user story, but choose this option, the value will be the user story number, otherwise it would be the task number',
         },
     ],
+    nameSource: [
+        {
+            value: 'work-item',
+            label: 'From the User Story',
+            tooltip: 'if you select a task the name would be taken from the parent User Story',
+        },
+        {
+            value: 'task',
+            label: 'From the Selected Task',
+            tooltip:
+                'if you select a user story, but choose this option, the value will be the user story name, otherwise it would be the task name',
+        },
+    ],
     separators: [
         { value: '/', label: 'Forward Slash (/)' },
         { value: '-', label: 'Hyphen (-)' },

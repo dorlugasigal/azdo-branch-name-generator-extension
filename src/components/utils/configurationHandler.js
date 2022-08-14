@@ -15,10 +15,10 @@ const usernameHandler = (config, item) => {
 };
 
 const numberHandler = (config, item) => (config.number === 'work-item' || item.task == undefined ? item.workItem.number : item.task.number);
-const typeHandler = (config, item) =>
-    item[item.task ? 'task' : 'workItem'].type === 'bug' ? config.type.bug : config.type.regular;
 
-const nameHandler = (config, item) => item[item.task ? 'task' : 'workItem'].name.replace(/[^A-Za-z0-9]/g, config.separators.other);
+const typeHandler = (config, item) => item[item.task ? 'task' : 'workItem'].type === 'bug' ? config.type.bug : config.type.regular;
+
+const nameHandler = (config, item) => item[config.nameSource === 'work-item' || item.task == undefined ? 'workItem' : 'task'].name.replace(/[^A-Za-z0-9]/g, config.separators.other).toLowerCase();
 
 const handle = (config, action, item) => {
     switch (action) {

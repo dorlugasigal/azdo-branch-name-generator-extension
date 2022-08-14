@@ -68,20 +68,30 @@ export default function Configuration({ config, setConfig }) {
                     }
                 );
             case 'name':
-                return generateRadioGroup(
-                    'Which kind of a separator to put between each word?',
-                    config.separators.other,
-                    configurationOptions.separators,
-                    (e) => {
-                        setConfig((prev) => ({
-                            ...prev,
-                            separators: {
-                                ...prev.separators,
-                                other: e.target.value,
-                            },
-                        }));
-                    }
-                );
+                return <div>
+                    {generateRadioGroup(
+                        'Where is the name coming from?',
+                        config.nameSource,
+                        configurationOptions.nameSource,
+                        (e) => {
+                            setConfig({ ...config, nameSource: e.target.value });
+                        }
+                    )}
+                    {generateRadioGroup(
+                        'Which kind of a separator to put between each word?',
+                        config.separators.other,
+                        configurationOptions.separators,
+                        (e) => {
+                            setConfig((prev) => ({
+                                ...prev,
+                                separators: {
+                                    ...prev.separators,
+                                    other: e.target.value,
+                                },
+                            }));
+                        }
+                    )}
+                </div>
             case 'type':
                 return (
                     <div>

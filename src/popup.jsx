@@ -22,6 +22,7 @@ function Popup() {
             third: 'type',
             fourth: 'name',
         },
+        nameSource: 'task',
         separators: {
             first: '/',
             second: '/',
