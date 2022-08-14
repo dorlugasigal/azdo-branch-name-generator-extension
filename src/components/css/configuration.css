@@ -1,12 +1,26 @@
 .configuration {
     border-top: 1px solid #ccc;
     padding-top: 1em;
+    flex: 1;
     margin-top: 1em;
 }
+
+.configuration-header {
+    color: rgba(0, 0, 0, 0.6);
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    font-weight: 400;
+    font-size: 1rem;
+    line-height: 1.4375em;
+    letter-spacing: 0.00938em;
+    padding: 0;
+    position: relative;
+}
+
 .row {
     display: flex;
     flex-direction: row;
 }
+
 .section {
     flex: 2;
     padding: 0.2em;
@@ -22,12 +36,15 @@
     vertical-align: center;
     user-select: none;
 }
+
 .separator {
     flex: 1;
 }
+
 .radio-group {
     border-bottom: 2px solid #ccc;
 }
+
 .selected {
     background-color: rebeccapurple;
     color: white;

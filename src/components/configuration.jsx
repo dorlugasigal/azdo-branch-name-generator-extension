@@ -150,7 +150,7 @@ export default function Configuration({ config, setConfig }) {
         </div>
     );
 
-    const createBranchConfigurationSections = () => {
+    const ConfigurationSections = () => {
         return (
             <div className="row">
                 {createDataDiv('first')}
@@ -177,41 +177,44 @@ export default function Configuration({ config, setConfig }) {
                 )}
             </div>
         ));
+    const SectionOptions = () =>
+        <div>
+            {selectedSegment &&
+                !selectedSegment.includes('separator') &&
+                generateRadioGroup(
+                    'What type of data?',
+                    config.order[selectedSegment.split('-')[0]],
+                    configurationOptions.data,
+                    (e) => {
+                        setSelectedSettings(e.target.value);
+                        setConfig((prev) => ({
+                            ...prev,
+                            order: { ...prev.order, [selectedSegment.split('-')[0]]: e.target.value },
+                        }));
+                    }
+                )}
+            {selectedSegment &&
+                selectedSegment.includes('separator') &&
+                generateRadioGroup(
+                    'Which kind of a separator to put between the sections?',
+                    config.separators[selectedSegment.split('-')[0]],
+                    configurationOptions.separators,
+                    (e) => {
+                        setSelectedSettings(e.target.value);
+                        setConfig((prev) => ({
+                            ...prev,
+                            separators: { ...prev.separators, [selectedSegment.split('-')[0]]: e.target.value },
+                        }));
+                    }
+                )}
+            {selectedSegment && getSelectedSegmentOptions()}
+        </div>
 
     return (
         <div className="configuration">
-            {createBranchConfigurationSections()}
-            <div>
-                {selectedSegment &&
-                    !selectedSegment.includes('separator') &&
-                    generateRadioGroup(
-                        'What type of data?',
-                        config.order[selectedSegment.split('-')[0]],
-                        configurationOptions.data,
-                        (e) => {
-                            setSelectedSettings(e.target.value);
-                            setConfig((prev) => ({
-                                ...prev,
-                                order: { ...prev.order, [selectedSegment.split('-')[0]]: e.target.value },
-                            }));
-                        }
-                    )}
-                {selectedSegment &&
-                    selectedSegment.includes('separator') &&
-                    generateRadioGroup(
-                        'Which kind of a separator to put between the sections?',
-                        config.separators[selectedSegment.split('-')[0]],
-                        configurationOptions.separators,
-                        (e) => {
-                            setSelectedSettings(e.target.value);
-                            setConfig((prev) => ({
-                                ...prev,
-                                separators: { ...prev.separators, [selectedSegment.split('-')[0]]: e.target.value },
-                            }));
-                        }
-                    )}
-                {selectedSegment && getSelectedSegmentOptions()}
-            </div>
+            <div className="configuration-header"> Select a section to edit</div>
+            {ConfigurationSections()}
+            {SectionOptions()}
             <h1>Examples</h1>
             <h2>{previewBug}</h2>
             <h2>{previewFeature}</h2>

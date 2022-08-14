@@ -43,6 +43,8 @@ function afterWindowLoaded() {
                 userStory = parseItem(parent);
                 break;
         }
+        console.log(userStory)
+        console.log(task)
         chrome.runtime.sendMessage({
             type: 'from_content_script',
             content: {

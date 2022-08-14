@@ -3,9 +3,9 @@ const usernameHandler = (config, item) => {
         case 'personal':
             return config.usernameActual;
         case 'johndoe':
-            return item[item.task ? 'task' : 'workItem'].assignee.replace(/\s/g, '').toLowerCase();
+            return item[item.task && item.task.assignee != 'Unassigned' ? 'task' : 'workItem'].assignee.replace(/\s/g, '').toLowerCase();
         case 'doejohn':
-            return item[item.task ? 'task' : 'workItem'].assignee
+            return item[item.task && item.task.assignee != 'Unassigned' ? 'task' : 'workItem'].assignee
                 .split(' ')
                 .reverse()
                 .join('')
@@ -14,10 +14,12 @@ const usernameHandler = (config, item) => {
     }
 };
 
-const numberHandler = (config, item) => (config.number === 'work-item' ? item.workItem.number : item.task.number);
+const numberHandler = (config, item) => (config.number === 'work-item' || item.task == undefined ? item.workItem.number : item.task.number);
 const typeHandler = (config, item) =>
     item[item.task ? 'task' : 'workItem'].type === 'bug' ? config.type.bug : config.type.regular;
-const nameHandler = (config, item) => item[item.task ? 'task' : 'workItem'].name.replace(/ /g, config.separators.other);
+
+const nameHandler = (config, item) => item[item.task ? 'task' : 'workItem'].name.replace(/[^A-Za-z0-9]/g, config.separators.other);
+
 const handle = (config, action, item) => {
     switch (action) {
         case 'username':
