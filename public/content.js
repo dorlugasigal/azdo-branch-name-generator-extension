@@ -13,7 +13,7 @@ function afterWindowLoaded() {
     function clicked(i) {
         return function () {
             analyse(i);
-        }
+        };
     }
     function parseItem(item) {
         var itemDetails = {};
@@ -38,17 +38,19 @@ function afterWindowLoaded() {
                 break;
             case 'Task':
                 var row = tbTileContent[index].parentElement.parentElement.parentElement;
-                var parent = row.getElementsByClassName("tbTileContent")[0];
+                var parent = row.getElementsByClassName('tbTileContent')[0];
                 task = parseItem(tbTileContent[index]);
                 userStory = parseItem(parent);
                 break;
         }
+        console.log(userStory)
+        console.log(task)
         chrome.runtime.sendMessage({
             type: 'from_content_script',
             content: {
-                'workItem': userStory,
-                'task': task
-            }
+                workItem: userStory,
+                task: task,
+            },
         });
-    };
+    }
 }

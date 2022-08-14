@@ -1,0 +1,30 @@
+{
+    "name": "Getting Started",
+    "description": "build an extension",
+    "version": "0.0.1",
+    "manifest_version": 3,
+    "action": {
+        "matches": [
+            "https://dev.azure.com/*"
+        ],
+        "default_popup": "popup.html"
+    },
+    "background": {
+        "service_worker": "background.js"
+    },
+    "permissions": [
+        "storage",
+        "clipboardRead",
+        "clipboardWrite"
+    ],
+    "content_scripts": [
+        {
+            "matches": [
+                "https://dev.azure.com/*"
+            ],
+            "js": [
+                "content.js"
+            ]
+        }
+    ]
+}
