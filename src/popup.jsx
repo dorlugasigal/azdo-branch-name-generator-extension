@@ -50,10 +50,15 @@ function Popup() {
     const [isSetupVisable, setIsSetupVisable] = useState(false);
     return (
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-            {data && <div style={{ flex: 1 }}>
+            {data && data.workItem ? <div style={{ flex: 1 }}>
                 <h3>Your selected item branch name:</h3>
                 <h2>{preview(config, data)}</h2>
             </div>
+                :
+                <div style={{ flex: 1 }}>
+                    <h2>No Item Selected</h2>
+                    <h3> make you are on the Azure DevOps Sprints page.</h3>
+                </div>
             }
             <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-start' }}>
 
@@ -68,7 +73,7 @@ function Popup() {
                 >
                     {isSetupVisable ? 'Close' : 'Settings'}
                 </Button>
-                <Button
+                {data && data.workItem && <Button
                     variant={'contained'}
                     onClick={() => {
                         navigator.clipboard.writeText(preview(config, data));
@@ -78,7 +83,7 @@ function Popup() {
                     size="large"
                 >
                     Copy
-                </Button>
+                </Button>}
             </div>
             {isSetupVisable && <Configuration config={config} setConfig={setConfig} />}
         </div >
