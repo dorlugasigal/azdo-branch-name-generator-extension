@@ -39,7 +39,7 @@ const handle = (config, action, item) => {
 
 export const previewExample = (config, isBug) => {
     var task = {
-        name: `this is a ${isBug ? 'bug' : 'feature'} branch name`,
+        name: `example of a ${isBug ? 'bug' : 'feature'} branch name`,
         type: isBug ? 'bug' : 'feature',
         assignee: 'John Doe',
         number: 123,
@@ -54,6 +54,9 @@ export const previewExample = (config, isBug) => {
 };
 
 export const preview = (config, item) => {
+    if (item == null || item == undefined) {
+        return '';
+    }
     var branchName = `${handle(config, config.order.first, item)}${config.separators.first}${handle(
         config,
         config.order.second,

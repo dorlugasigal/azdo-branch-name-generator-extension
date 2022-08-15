@@ -1,0 +1,16 @@
+.appWrapper {
+    display: flex;
+    flex-direction: column;
+    margin: 0.7em;
+}
+
+.buttons-section {
+    flex: 1;
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 10px
+}
+
+.buttonWithMargin {
+    margin-right: 10px !important;
+}

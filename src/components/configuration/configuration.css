@@ -28,10 +28,10 @@
     padding-left: 1em;
     margin: 0.1em;
     border-radius: 5px;
-    border: 3px solid rebeccapurple;
+    border: 2px solid #1565c0;
     text-align: center;
     font-weight: bold;
-    font-size: 1.2em;
+    font-size: 1.1em;
     font-size: x-large;
     vertical-align: center;
     user-select: none;
@@ -46,7 +46,16 @@
 }
 
 .selected {
-    background-color: rebeccapurple;
+    background-color: #1979e6;
     color: white;
-    border: 3px solid mediumpurple;
+    border: 3px solid #1565c0;
+}
+
+.preview {
+    margin: 0.7em 0.2em;
+    border: 2px solid rgb(240, 246, 255);
+    border-radius: 5px;
+    background-color: #ddeaf9;
+    text-align: center;
+    color: #0d498b;
 }

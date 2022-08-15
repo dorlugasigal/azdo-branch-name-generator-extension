@@ -4,6 +4,7 @@
 
 This is a simple extension that allows you to generate a branch name based on an Azure DevOps Board item.  
 Tech stack:
+
 - React 18
 - WebPack 5
 

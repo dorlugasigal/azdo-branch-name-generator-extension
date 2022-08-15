@@ -1,20 +1,29 @@
 {
     "name": "Branch Name Generator",
-    "description": "a simple extension that helps generate a branch name out of an Azure DevOps item, based on your preferences of branch name conventions",
+    "description": "a simple extension that helps generate a preference-based git branch name out of an Azure DevOps item",
     "version": "1.0.0",
     "manifest_version": 3,
     "action": {
         "matches": [
             "https://dev.azure.com/*/_sprints/*"
         ],
+        "default_icon": {
+            "16": "16.png",
+            "48": "48.png",
+            "128": "128.png"
+        },
         "default_popup": "popup.html"
     },
     "background": {
         "service_worker": "background.js"
     },
+    "icons": {
+        "16": "16.png",
+        "48": "48.png",
+        "128": "128.png"
+    },
     "permissions": [
         "storage",
-        "clipboardRead",
         "clipboardWrite"
     ],
     "content_scripts": [

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import './css/configuration.css';
+import './configuration.css';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import TextField from '@mui/material/TextField';
@@ -8,9 +8,8 @@ import FormLabel from '@mui/material/FormLabel';
 import InfoIcon from '@mui/icons-material/Info';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
-
-import { previewExample } from './utils/configurationHandler';
-import { configurationOptions } from './config/options';
+import { previewExample } from '../../configuration/configurationHandler';
+import { configurationOptions } from '../../configuration/options';
 
 export default function Configuration({ config, setConfig }) {
     const [previewBug, setPreviewBug] = useState('');
@@ -187,6 +186,7 @@ export default function Configuration({ config, setConfig }) {
                 )}
             </div>
         ));
+
     const SectionOptions = () =>
         <div>
             {selectedSegment &&
@@ -225,9 +225,10 @@ export default function Configuration({ config, setConfig }) {
             <div className="configuration-header"> Select a section to edit</div>
             {ConfigurationSections()}
             {SectionOptions()}
-            <h1>Examples</h1>
-            <h2>{previewBug}</h2>
-            <h2>{previewFeature}</h2>
+            <div className='preview'>
+                <h2>{previewBug}</h2>
+                <h2>{previewFeature}</h2>
+            </div>
         </div>
     );
 }
