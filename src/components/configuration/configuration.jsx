@@ -95,7 +95,7 @@ export default function Configuration({ config, setConfig }) {
                 return (
                     <div>
                         {generateRadioGroup(
-                            'How would you like to call your tasks?',
+                            'How would you like to call your work items?',
                             config.type.regular,
                             configurationOptions.type.regular,
                             (e) => {

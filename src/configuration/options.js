@@ -17,6 +17,7 @@ export const configurationOptions = {
             { value: 'feature', label: 'feature' },
             { value: 'userstory', label: 'userstory' },
             { value: 'task', label: 'task' },
+            { value: 'issue', label: 'issue' },
         ],
         bug: [
             { value: 'bug', label: 'bug' },

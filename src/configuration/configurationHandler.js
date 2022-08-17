@@ -16,7 +16,7 @@ const usernameHandler = (config, item) => {
 
 const numberHandler = (config, item) => (config.number === 'work-item' || item.task == undefined ? item.workItem.number : item.task.number);
 
-const typeHandler = (config, item) => item[item.task ? 'task' : 'workItem'].type === 'bug' ? config.type.bug : config.type.regular;
+const typeHandler = (config, item) => item[item.task ? 'task' : 'workItem'].type === 'Bug' ? config.type.bug : config.type.regular;
 
 const nameHandler = (config, item) => item[config.nameSource === 'work-item' || item.task == undefined ? 'workItem' : 'task'].name.replace(/[^A-Za-z0-9]/g, config.separators.other).toLowerCase();
 
@@ -40,11 +40,11 @@ const handle = (config, action, item) => {
 export const previewExample = (config, isBug) => {
     var task = {
         name: `example of a ${isBug ? 'bug' : 'feature'} branch name`,
-        type: isBug ? 'bug' : 'feature',
+        type: isBug ? 'Bug' : 'Feature',
         assignee: 'John Doe',
         number: 123,
     };
-    var workItem = { name: 'this is workitem test', type: 'userstory', assignee: 'Dor Lugasi', number: 456 };
+    var workItem = { name: 'this is a workitem', type: 'userstory', assignee: 'Dor Lugasi', number: 456 };
 
     var item = {
         task,
