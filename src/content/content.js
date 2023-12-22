@@ -6,57 +6,75 @@ if (document.readyState !== 'complete') {
 var previous = [];
 
 function afterWindowLoaded() {
-    var tbTileContent = [];
+    var clickableItems = [];
     setInterval(function () {
-        initialList = document.getElementsByClassName('card-content');
-        tbTileContent = [];
+        cards = document.getElementsByClassName('card-content');
+        tiles = document.getElementsByClassName('tbTileContent');
+
+        clickableItems = [];
         //where paraent.parent.parent does not have a style  disaply:none
-        for (var i = 0; i < initialList.length; i++) {
-            if (initialList[i].parentElement.parentElement.parentElement.style.display !== 'none') {
-                tbTileContent.push(initialList[i]);
+        for (var i = 0; i < cards.length; i++) {
+            if (cards[i].parentElement.parentElement.parentElement.style.display !== 'none') {
+                clickableItems.push({ item: cards[i], type: 'card-content' });
+            }
+        }
+        for (var i = 0; i < tiles.length; i++) {
+            if (tiles[i].parentElement.parentElement.parentElement.style.display !== 'none') {
+                clickableItems.push({ item: tiles[i], type: 'tbTileContent' });
             }
         }
 
         var isChanged = false;
-        if (previous.length !== tbTileContent.length) {
+        if (previous.length !== clickableItems.length) {
             isChanged = true;
         }
 
         if (!isChanged) {
-            for (var i = 0; i < tbTileContent.length; i++) {
-                if (previous[i].innerHTML !== tbTileContent[i].innerHTML) {
+            for (var i = 0; i < clickableItems.length; i++) {
+                if (previous[i].item.innerHTML !== clickableItems[i].item.innerHTML) {
                     isChanged = true;
                     break;
                 }
             }
         }
         if (isChanged) {
-            for (var i = 0; i < tbTileContent.length; i++) {
-                tbTileContent[i].addEventListener('click', clicked(i));
+            for (var i = 0; i < clickableItems.length; i++) {
+                clickableItems[i].item.addEventListener('click', clicked(i, clickableItems[i].type));
             }
         }
-        previous = tbTileContent;
+        previous = clickableItems;
     }, 2000);
 
-    function clicked(i) {
+    function clicked(i, type) {
         return function () {
-            analyse(i);
+            analyse(i, type);
         };
     }
-    function parseItem(item) {
+    function parseItem(item, type) {
         var itemDetails = {};
         if (item == undefined || item == null) {
             return undefined;
         }
-        itemDetails.type = item.getElementsByClassName('fluent-icons-enabled')[0].getAttribute('aria-label');
-        itemDetails.assignee = item.getElementsByClassName('identity-display-name')[0].innerText;
-        itemDetails.number = item.getElementsByClassName('font-weight-semibold')[0].innerText;
-        itemDetails.name = item.getElementsByClassName('title-text')[0].innerText;
+        console.log('type is' + type);
+        if (type === 'card-content') {
+            itemDetails.type = item.getElementsByClassName('fluent-icons-enabled')[0].getAttribute('aria-label');
+            itemDetails.assignee = item.getElementsByClassName('identity-display-name')[0].innerText;
+            itemDetails.number = item.getElementsByClassName('font-weight-semibold')[0].innerText;
+            itemDetails.name = item.getElementsByClassName('title-text')[0].innerText;
+        } else if (type === 'tbTileContent') {
+            itemDetails.type = item.getElementsByClassName('work-item-type-icon')[0].getAttribute('aria-label');
+            itemDetails.assignee = item.getElementsByClassName('identity-picker-resolved-name')[0].innerText;
+            itemDetails.number = item.getElementsByClassName('id')[0].innerText;
+            itemDetails.name = item.getElementsByClassName('clickable-title')[0].innerText;
+        }
         return itemDetails;
     }
-    function analyse(index) {
+    function analyse(index, type) {
         debugger;
-        var workItemTypeIcon = tbTileContent[index].getElementsByClassName('fluent-icons-enabled')[0];
+        var workItemTypeIcon = clickableItems[index].item.getElementsByClassName('fluent-icons-enabled')[0];
+        if (workItemTypeIcon == undefined) {
+            workItemTypeIcon = clickableItems[index].item.getElementsByClassName('work-item-type-icon')[0];
+        }
         var typeOfItem = workItemTypeIcon.getAttribute('aria-label');
         let userStory = {};
         let task = {};
@@ -66,14 +84,21 @@ function afterWindowLoaded() {
             case 'User Story':
             case 'Product Backlog Item':
                 task = undefined;
-                userStory = parseItem(tbTileContent[index]);
+                console.log(clickableItems);
+                console.log(index);
+                userStory = parseItem(clickableItems[index].item, type);
                 break;
             case 'Task':
             case 'Bug':
-                var row = tbTileContent[index].parentElement.parentElement.parentElement;
-                var parent = row.getElementsByClassName('tbTileContent')[0];
-                task = parseItem(tbTileContent[index]);
-                userStory = parseItem(parent);
+                var row = clickableItems[index].item.parentElement.parentElement.parentElement;
+                var parent;
+                if (clickableItems[index].type === 'card-content') {
+                    parent = row.getElementsByClassName('card-content')[0];
+                } else {
+                    parent = row.getElementsByClassName('tbTileContent')[0];
+                }
+                task = parseItem(clickableItems[index].item, type);
+                userStory = parseItem(parent, type);
                 break;
         }
         console.log(userStory);
