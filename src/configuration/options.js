@@ -15,6 +15,7 @@ export const configurationOptions = {
     type: {
         regular: [
             { value: 'feature', label: 'feature' },
+            { value: 'pbi', label: 'pbi' },
             { value: 'userstory', label: 'userstory' },
             { value: 'task', label: 'task' },
             { value: 'issue', label: 'issue' },

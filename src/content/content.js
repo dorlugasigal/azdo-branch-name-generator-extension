@@ -8,12 +8,12 @@ var previous = [];
 function afterWindowLoaded() {
     var tbTileContent = [];
     setInterval(function () {
-        initialList = document.getElementsByClassName('tbTileContent');
+        initialList = document.getElementsByClassName('card-content');
         tbTileContent = [];
         //where paraent.parent.parent does not have a style  disaply:none
         for (var i = 0; i < initialList.length; i++) {
             if (initialList[i].parentElement.parentElement.parentElement.style.display !== 'none') {
-                tbTileContent.push(initialList[i])
+                tbTileContent.push(initialList[i]);
             }
         }
 
@@ -48,14 +48,15 @@ function afterWindowLoaded() {
         if (item == undefined || item == null) {
             return undefined;
         }
-        itemDetails.type = item.getElementsByClassName('work-item-type-icon')[0].getAttribute('aria-label');
-        itemDetails.assignee = item.getElementsByClassName('identity-picker-resolved-name')[0].innerText;
-        itemDetails.number = item.getElementsByClassName('id')[0].innerText;
-        itemDetails.name = item.getElementsByClassName('clickable-title')[0].innerText;
+        itemDetails.type = item.getElementsByClassName('fluent-icons-enabled')[0].getAttribute('aria-label');
+        itemDetails.assignee = item.getElementsByClassName('identity-display-name')[0].innerText;
+        itemDetails.number = item.getElementsByClassName('font-weight-semibold')[0].innerText;
+        itemDetails.name = item.getElementsByClassName('title-text')[0].innerText;
         return itemDetails;
     }
     function analyse(index) {
-        var workItemTypeIcon = tbTileContent[index].getElementsByClassName('work-item-type-icon')[0];
+        debugger;
+        var workItemTypeIcon = tbTileContent[index].getElementsByClassName('fluent-icons-enabled')[0];
         var typeOfItem = workItemTypeIcon.getAttribute('aria-label');
         let userStory = {};
         let task = {};
@@ -63,6 +64,7 @@ function afterWindowLoaded() {
             case 'Issue':
             case 'Epic':
             case 'User Story':
+            case 'Product Backlog Item':
                 task = undefined;
                 userStory = parseItem(tbTileContent[index]);
                 break;
@@ -74,8 +76,8 @@ function afterWindowLoaded() {
                 userStory = parseItem(parent);
                 break;
         }
-        console.log(userStory)
-        console.log(task)
+        console.log(userStory);
+        console.log(task);
         chrome.runtime.sendMessage({
             type: 'from_content_script',
             content: {
