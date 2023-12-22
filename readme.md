@@ -1,5 +1,5 @@
 # Azure DevOps Branch Generator Extension
-
+Disclaimer: the code is by no means an example of best practices nor clean code, it was implemented quickly and dirty using copilot.
 ## Overview
 
 This is a simple extension that allows you to generate a branch name based on an Azure DevOps Board item.  
