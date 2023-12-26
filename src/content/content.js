@@ -58,12 +58,14 @@ function afterWindowLoaded() {
         console.log('type is' + type);
         if (type === 'card-content') {
             itemDetails.type = item.getElementsByClassName('fluent-icons-enabled')[0].getAttribute('aria-label');
-            itemDetails.assignee = item.getElementsByClassName('identity-display-name')[0].innerText;
+            const assigneeElement = item.getElementsByClassName('identity-display-name')[0];
+            itemDetails.assignee = assigneeElement ? assigneeElement.innerText : 'No Assignee';
             itemDetails.number = item.getElementsByClassName('font-weight-semibold')[0].innerText;
             itemDetails.name = item.getElementsByClassName('title-text')[0].innerText;
         } else if (type === 'tbTileContent') {
             itemDetails.type = item.getElementsByClassName('work-item-type-icon')[0].getAttribute('aria-label');
-            itemDetails.assignee = item.getElementsByClassName('identity-picker-resolved-name')[0].innerText;
+            const assigneeElement = item.getElementsByClassName('identity-picker-resolved-name')[0];
+            itemDetails.assignee = assigneeElement ? assigneeElement.innerText : 'No Assignee';
             itemDetails.number = item.getElementsByClassName('id')[0].innerText;
             itemDetails.name = item.getElementsByClassName('clickable-title')[0].innerText;
         }
